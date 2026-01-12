@@ -26,6 +26,14 @@
 @import "@ionic/angular/css/flex-utils.css";
 
 /**
+ * Platform-Specific Themes
+ * -----------------------------------------------------
+ * Importar estilos específicos para iOS y Android
+ */
+@import "./theme/theme-ios.scss";
+@import "./theme/theme-material.scss";
+
+/**
  * Custom Global Styles
  * -----------------------------------------------------
  * Estilos globales personalizados para la aplicación
