@@ -1,0 +1,23 @@
+/* 
+ * HomePage refactorizada - Estilos simplificados
+ * Los estilos específicos de componentes ahora están en sus respectivos archivos
+ * Aplicando las mejores prácticas de Angular 20 con componentes granulares
+ */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.bottom-spacer {
+  height: 80px;
+  flex-shrink: 0;
+}
+
+/* Responsive design */
+@media (max-width: 375px) {
+  .bottom-spacer {
+    height: 60px;
+  }
+}

@@ -1,0 +1,32 @@
+<!-- Header granular -->
+<app-task-header 
+  [config]="headerConfig"
+  (backClick)="onHeaderBackClick()"
+/>
+
+<ion-content [fullscreen]="true">
+  <!-- Lista de tareas granular -->
+  <app-task-list
+    [tasks]="tasks()"
+    [selectedTask]="selectedTask()"
+    (taskToggle)="onTaskToggle($event)"
+    (taskOptions)="onTaskOptions($event)"
+  />
+  
+  <!-- Botón para agregar nueva tarea -->
+  <app-add-task-button
+    (addTaskClick)="onAddNewTask()"
+  />
+
+  <!-- Espaciador inferior -->
+  <div class="bottom-spacer"></div>
+</ion-content>
+
+<!-- Action Sheet granular para opciones de tarea -->
+<app-task-options
+  [isOpen]="isActionSheetOpen()"
+  [selectedTask]="selectedTask()"
+  (dismiss)="onActionSheetDismiss()"
+  (editTask)="onEditTask($event)"
+  (deleteTask)="onDeleteTask($event)"
+/>
