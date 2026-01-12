@@ -1,0 +1,516 @@
+/**
+ * Material Design 3 Theme - Android Platform
+ * ========================================================
+ * Estilos específicos para Android basados en Material Design 3:
+ * - Roboto como tipografía principal
+ * - Sistema de espaciado de 4dp grid
+ * - Elevación con sombras definidas
+ * - Color system con tonalidades
+ * - Animaciones más pronunciadas
+ * 
+ * Referencia: https://m3.material.io/
+ */
+
+.md {
+  
+  /* ================================================
+   * TIPOGRAFÍA - Roboto Font (Material Design 3)
+   * ================================================ */
+  
+  // Roboto es la fuente oficial de Material Design
+  --ion-font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  
+  // Type scale de Material Design 3
+  --md-font-size-display-large: 57px;    // Display Large
+  --md-font-size-display-medium: 45px;   // Display Medium
+  --md-font-size-display-small: 36px;    // Display Small
+  --md-font-size-headline-large: 34px;   // Headline Large
+  --md-font-size-headline-medium: 28px;  // Headline Medium
+  --md-font-size-headline-small: 24px;   // Headline Small
+  --md-font-size-title-large: 22px;      // Title Large
+  --md-font-size-title-medium: 16px;     // Title Medium
+  --md-font-size-title-small: 14px;      // Title Small
+  --md-font-size-label-large: 14px;      // Label Large
+  --md-font-size-label-medium: 12px;     // Label Medium
+  --md-font-size-label-small: 11px;      // Label Small
+  --md-font-size-body-large: 16px;       // Body Large
+  --md-font-size-body-medium: 14px;      // Body Medium (default)
+  --md-font-size-body-small: 12px;       // Body Small
+  
+  // Pesos de fuente Material Design
+  --md-font-weight-regular: 400;
+  --md-font-weight-medium: 500;
+  --md-font-weight-bold: 700;
+  
+  /* ================================================
+   * ESPACIADO - 4dp Grid System
+   * ================================================ */
+  
+  --md-spacing-xs: 4px;    // 1 unidad
+  --md-spacing-sm: 8px;    // 2 unidades
+  --md-spacing-md: 12px;   // 3 unidades
+  --md-spacing-lg: 16px;   // 4 unidades
+  --md-spacing-xl: 20px;   // 5 unidades
+  --md-spacing-2xl: 24px;  // 6 unidades
+  --md-spacing-3xl: 32px;  // 8 unidades
+  
+  /* ================================================
+   * COLORES - Material Design 3 Color System
+   * ================================================ */
+  
+  // Primary color palette - Azul moderno y vibrante
+  --md-primary: #1976D2;
+  --md-on-primary: #FFFFFF;
+  --md-primary-container: #BBDEFB;
+  --md-on-primary-container: #004BA0;
+  
+  // Secondary color palette - Teal complementario
+  --md-secondary: #00897B;
+  --md-on-secondary: #FFFFFF;
+  --md-secondary-container: #B2DFDB;
+  --md-on-secondary-container: #00564D;
+  
+  // Tertiary color palette - Naranja vibrante
+  --md-tertiary: #FB8C00;
+  --md-on-tertiary: #FFFFFF;
+  --md-tertiary-container: #FFE0B2;
+  --md-on-tertiary-container: #E65100;
+  
+  // Error color palette
+  --md-error: #B3261E;
+  --md-on-error: #FFFFFF;
+  --md-error-container: #F9DEDC;
+  --md-on-error-container: #410E0B;
+  
+  // Surface colors
+  --md-surface: #FFFBFE;
+  --md-on-surface: #1C1B1F;
+  --md-surface-variant: #FFFFFF;
+  --md-on-surface-variant: #49454F;
+  
+  // Background colors
+  --md-background: #FFFBFE;
+  --md-on-background: #1C1B1F;
+  
+  // Outline colors
+  --md-outline: #79747E;
+  --md-outline-variant: #CAC4D0;
+  
+  // Shadow and overlay
+  --md-shadow: #000000;
+  --md-scrim: #000000;
+  
+  /* ================================================
+   * ELEVACIÓN - Material Design 3 Elevation System
+   * ================================================ */
+  
+  // Material Design 3 usa 5 niveles de elevación
+  --md-elevation-0: none;
+  --md-elevation-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --md-elevation-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --md-elevation-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+  --md-elevation-4: 0px 6px 10px 4px rgba(0, 0, 0, 0.15), 0px 2px 3px 0px rgba(0, 0, 0, 0.30);
+  --md-elevation-5: 0px 8px 12px 6px rgba(0, 0, 0, 0.15), 0px 4px 4px 0px rgba(0, 0, 0, 0.30);
+  
+  /* ================================================
+   * BORDER RADIUS - Material Design 3 Shape System
+   * ================================================ */
+  
+  // Material Design 3 tiene shape tokens específicos
+  --md-shape-none: 0px;
+  --md-shape-extra-small: 4px;
+  --md-shape-small: 8px;
+  --md-shape-medium: 12px;
+  --md-shape-large: 16px;
+  --md-shape-extra-large: 28px;
+  --md-shape-full: 9999px;
+  
+  /* ================================================
+   * COMPONENTES ESPECÍFICOS MATERIAL DESIGN 3
+   * ================================================ */
+  
+  // Headers - Estilo Material Design
+  .custom-header {
+    background: var(--md-surface);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.12);
+    padding: var(--md-spacing-lg) var(--md-spacing-lg) var(--md-spacing-md);
+    
+    h1 {
+      font-size: var(--md-font-size-headline-large);
+      font-weight: var(--md-font-weight-medium);
+      letter-spacing: 0;
+      line-height: 30px;
+      margin: 0;
+      color: var(--md-on-surface);
+    }
+    
+    .header-title {
+      font-size: var(--md-font-size-title-large);
+      font-weight: var(--md-font-weight-medium);
+      margin: 0;
+      color: var(--md-on-surface);
+    }
+    
+    ion-back-button {
+      --color: var(--md-on-surface);
+      font-size: var(--md-font-size-label-large);
+      font-weight: var(--md-font-weight-medium);
+    }
+  }
+  
+  // Cards - Material Design 3 Filled Cards
+  .category-card,
+  .task-item {
+    background: var(--md-surface-variant);
+    border-radius: var(--md-shape-medium);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.12);
+    border: none;
+    
+    // State layers - Material Design 3
+    &:hover {
+      box-shadow: var(--md-elevation-1);
+      transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    &:active {
+      box-shadow: var(--md-elevation-0);
+      transition: box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+  
+  // Botones - Material Design 3 Button Styles
+  ion-button {
+    --border-radius: var(--md-shape-full);
+    font-size: var(--md-font-size-label-large);
+    font-weight: var(--md-font-weight-medium);
+    letter-spacing: 0.1px;
+    text-transform: uppercase;
+    height: 40px;
+    
+    // Filled button (primary)
+    &.button-solid {
+      --background: var(--md-primary);
+      --color: var(--md-on-primary);
+      --box-shadow: var(--md-elevation-0);
+      
+      &:hover {
+        --box-shadow: var(--md-elevation-1);
+      }
+      
+      &:active {
+        --box-shadow: var(--md-elevation-0);
+      }
+    }
+    
+    // Outlined button
+    &.button-outline {
+      --border-color: var(--md-outline);
+      --color: var(--md-primary);
+      --border-width: 1px;
+    }
+    
+    // Text button
+    &.button-clear {
+      --color: var(--md-primary);
+    }
+  }
+  
+  // FAB - Material Design 3 FAB
+  ion-fab-button {
+    --background: var(--md-primary-container);
+    --color: var(--md-on-primary-container);
+    --border-radius: var(--md-shape-large);
+    --box-shadow: var(--md-elevation-3);
+    width: 56px;
+    height: 56px;
+    
+    &:hover {
+      --box-shadow: var(--md-elevation-4);
+    }
+    
+    &:active {
+      --box-shadow: var(--md-elevation-3);
+    }
+    
+    // Large FAB
+    &.fab-large {
+      width: 96px;
+      height: 96px;
+      --border-radius: var(--md-shape-extra-large);
+    }
+    
+    // Small FAB
+    &.fab-small {
+      width: 40px;
+      height: 40px;
+      --border-radius: var(--md-shape-medium);
+    }
+  }
+  
+  // Bottom Sheet / Action Sheet - Material Design
+  ion-action-sheet {
+    --button-color: var(--md-on-surface);
+    --button-color-selected: var(--md-primary);
+    
+    .action-sheet-wrapper {
+      background: var(--md-surface);
+      border-radius: var(--md-shape-extra-large) var(--md-shape-extra-large) 0 0;
+      box-shadow: var(--md-elevation-3);
+    }
+    
+    .action-sheet-group {
+      background: transparent;
+      
+      .action-sheet-button {
+        font-size: var(--md-font-size-body-large);
+        font-weight: var(--md-font-weight-regular);
+        color: var(--md-on-surface);
+        height: 56px;
+        
+        &.action-sheet-cancel {
+          display: none; // Material Design no usa botón cancel separado
+        }
+        
+        &.action-sheet-destructive {
+          color: var(--md-error);
+        }
+        
+        &.action-sheet-selected {
+          color: var(--md-primary);
+          font-weight: var(--md-font-weight-medium);
+        }
+      }
+    }
+    
+    .action-sheet-title {
+      font-size: var(--md-font-size-title-large);
+      font-weight: var(--md-font-weight-regular);
+      color: var(--md-on-surface-variant);
+      padding: var(--md-spacing-lg);
+    }
+  }
+  
+  // Modal - Material Design 3 Dialog
+  ion-modal {
+    --border-radius: var(--md-shape-extra-large);
+    --box-shadow: var(--md-elevation-3);
+    
+    &.modal-card {
+      --height: auto;
+      --max-width: 560px;
+      --border-radius: var(--md-shape-extra-large);
+    }
+  }
+  
+  // Alert - Material Design 3 Dialog
+  ion-alert {
+    --background: var(--md-surface);
+    --max-width: 312px;
+    
+    .alert-wrapper {
+      border-radius: var(--md-shape-extra-large);
+      box-shadow: var(--md-elevation-3);
+      padding: var(--md-spacing-2xl);
+    }
+    
+    .alert-title {
+      font-size: var(--md-font-size-headline-small);
+      font-weight: var(--md-font-weight-regular);
+      color: var(--md-on-surface);
+    }
+    
+    .alert-message {
+      font-size: var(--md-font-size-body-medium);
+      color: var(--md-on-surface-variant);
+      line-height: 20px;
+    }
+    
+    .alert-button-group {
+      padding-top: var(--md-spacing-2xl);
+      justify-content: flex-end;
+    }
+    
+    .alert-button {
+      font-size: var(--md-font-size-label-large);
+      font-weight: var(--md-font-weight-medium);
+      color: var(--md-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1px;
+      
+      &.alert-button-role-destructive {
+        color: var(--md-error);
+      }
+    }
+  }
+  
+  // List - Material Design 3 List
+  ion-list {
+    background: var(--md-surface);
+    
+    ion-item {
+      --background: transparent;
+      --border-color: var(--md-outline-variant);
+      --padding-start: var(--md-spacing-lg);
+      --padding-end: var(--md-spacing-lg);
+      --inner-padding-end: 0;
+      --min-height: 56px;
+      
+      ion-label {
+        font-size: var(--md-font-size-body-large);
+        font-weight: var(--md-font-weight-regular);
+        color: var(--md-on-surface);
+        margin: var(--md-spacing-md) 0;
+      }
+      
+      // Ripple effect
+      &::part(native) {
+        position: relative;
+        overflow: hidden;
+      }
+    }
+  }
+  
+  // Toolbar - Material Design 3 Top App Bar
+  ion-toolbar {
+    --background: var(--md-surface);
+    --border-color: transparent;
+    --padding-top: var(--md-spacing-xs);
+    --padding-bottom: var(--md-spacing-xs);
+    --min-height: 64px;
+    box-shadow: var(--md-elevation-2);
+    
+    ion-title {
+      font-size: var(--md-font-size-title-large);
+      font-weight: var(--md-font-weight-regular);
+      color: var(--md-on-surface);
+    }
+  }
+  
+  // Input - Material Design 3 Text Field
+  ion-input,
+  ion-textarea {
+    --background: var(--md-surface-variant);
+    --border-radius: var(--md-shape-extra-small) var(--md-shape-extra-small) 0 0;
+    --padding-start: var(--md-spacing-lg);
+    --padding-end: var(--md-spacing-lg);
+    font-size: var(--md-font-size-body-large);
+    color: var(--md-on-surface);
+    border-bottom: 1px solid var(--md-outline);
+    
+    &.has-focus {
+      --background: var(--md-surface-variant);
+      border-bottom: 2px solid var(--md-primary);
+    }
+    
+    // Label
+    .label-text {
+      font-size: var(--md-font-size-body-small);
+      color: var(--md-on-surface-variant);
+    }
+  }
+  
+  // Chip - Material Design 3 Chip
+  .chip {
+    background: var(--md-surface-variant);
+    border-radius: var(--md-shape-small);
+    padding: var(--md-spacing-xs) var(--md-spacing-md);
+    font-size: var(--md-font-size-label-large);
+    font-weight: var(--md-font-weight-medium);
+    color: var(--md-on-surface-variant);
+    
+    &.chip-selected {
+      background: var(--md-secondary-container);
+      color: var(--md-on-secondary-container);
+    }
+  }
+  
+  // Divider
+  .divider {
+    height: 1px;
+    background: var(--md-outline-variant);
+  }
+  
+  // Skeleton - Loading con estilo Material Design
+  .skeleton-item {
+    background: linear-gradient(
+      90deg,
+      var(--md-surface-variant) 0%,
+      var(--md-outline-variant) 50%,
+      var(--md-surface-variant) 100%
+    );
+    border-radius: var(--md-shape-medium);
+    animation: md-shimmer 1.2s ease-in-out infinite;
+  }
+  
+  @keyframes md-shimmer {
+    0% { 
+      background-position: -200% 0;
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% { 
+      background-position: 200% 0;
+      opacity: 0.5;
+    }
+  }
+  
+  /* ================================================
+   * ANIMACIONES - Material Design 3 Motion
+   * ================================================ */
+  
+  // Material Design usa timing functions específicas
+  --md-easing-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --md-easing-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --md-easing-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
+  --md-easing-emphasized: cubic-bezier(0.2, 0.0, 0, 1);
+  
+  --md-duration-short1: 50ms;
+  --md-duration-short2: 100ms;
+  --md-duration-short3: 150ms;
+  --md-duration-short4: 200ms;
+  --md-duration-medium1: 250ms;
+  --md-duration-medium2: 300ms;
+  --md-duration-medium3: 350ms;
+  --md-duration-medium4: 400ms;
+  --md-duration-long1: 450ms;
+  --md-duration-long2: 500ms;
+  --md-duration-long3: 550ms;
+  --md-duration-long4: 600ms;
+  
+  * {
+    --ion-transition-duration: var(--md-duration-medium2);
+    --ion-transition-timing-function: var(--md-easing-standard);
+  }
+  
+  // Ripple effect para interacciones
+  .md-ripple {
+    position: relative;
+    overflow: hidden;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.1);
+      transform: translate(-50%, -50%);
+      transition: width var(--md-duration-medium4) var(--md-easing-decelerate),
+                  height var(--md-duration-medium4) var(--md-easing-decelerate);
+    }
+    
+    &:active::after {
+      width: 200%;
+      height: 200%;
+    }
+  }
+  
+  // Page transitions Material Design style
+  .ion-page {
+    will-change: transform, opacity;
+  }
+}

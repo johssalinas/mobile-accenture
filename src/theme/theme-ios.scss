@@ -1,0 +1,340 @@
+/**
+ * iOS Theme - Following iOS Human Interface Guidelines
+ * ========================================================
+ * Estilos específicos para iOS basados en:
+ * - SF Pro como tipografía principal
+ * - Sistema de espaciado de 8pt grid
+ * - Sombras sutiles y translucidez
+ * - Animaciones suaves y naturales
+ * 
+ * Referencia: https://developer.apple.com/design/human-interface-guidelines/
+ */
+
+.ios {
+  
+  /* ================================================
+   * TIPOGRAFÍA - SF Pro System Font
+   * ================================================ */
+  
+  // SF Pro es la fuente del sistema iOS
+  --ion-font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
+  
+  // Tamaños de texto iOS (pt convertido a px, usando 1pt = 1.333px aproximadamente)
+  --ios-font-size-caption2: 11px;      // Caption 2
+  --ios-font-size-caption1: 12px;      // Caption 1
+  --ios-font-size-footnote: 13px;      // Footnote
+  --ios-font-size-subheadline: 15px;   // Subheadline
+  --ios-font-size-callout: 16px;       // Callout
+  --ios-font-size-body: 17px;          // Body (default)
+  --ios-font-size-headline: 17px;      // Headline
+  --ios-font-size-title3: 20px;        // Title 3
+  --ios-font-size-title2: 22px;        // Title 2
+  --ios-font-size-title1: 28px;        // Title 1
+  --ios-font-size-large-title: 34px;   // Large Title
+  
+  // Pesos de fuente iOS
+  --ios-font-weight-regular: 400;
+  --ios-font-weight-medium: 500;
+  --ios-font-weight-semibold: 600;
+  --ios-font-weight-bold: 700;
+  
+  /* ================================================
+   * ESPACIADO - 8pt Grid System
+   * ================================================ */
+  
+  --ios-spacing-xs: 4px;    // 0.5 unidades
+  --ios-spacing-sm: 8px;    // 1 unidad
+  --ios-spacing-md: 16px;   // 2 unidades
+  --ios-spacing-lg: 24px;   // 3 unidades
+  --ios-spacing-xl: 32px;   // 4 unidades
+  --ios-spacing-2xl: 40px;  // 5 unidades
+  
+  /* ================================================
+   * COLORES - iOS Native Colors
+   * ================================================ */
+  
+  // Colores del sistema iOS
+  --ios-blue: #007AFF;
+  --ios-green: #34C759;
+  --ios-indigo: #5856D6;
+  --ios-orange: #FF9500;
+  --ios-pink: #FF2D55;
+  --ios-purple: #AF52DE;
+  --ios-red: #FF3B30;
+  --ios-teal: #5AC8FA;
+  --ios-yellow: #FFCC00;
+  
+  // Grises del sistema iOS
+  --ios-gray: #8E8E93;
+  --ios-gray2: #AEAEB2;
+  --ios-gray3: #C7C7CC;
+  --ios-gray4: #D1D1D6;
+  --ios-gray5: #E5E5EA;
+  --ios-gray6: #F2F2F7;
+  
+  // Background colors
+  --ios-bg-primary: #FFFFFF;
+  --ios-bg-secondary: #F2F2F7;
+  --ios-bg-tertiary: #FFFFFF;
+  --ios-bg-grouped: #F2F2F7;
+  
+  // Separadores
+  --ios-separator: rgba(60, 60, 67, 0.36);
+  --ios-separator-opaque: #C6C6C8;
+  
+  /* ================================================
+   * SOMBRAS Y ELEVACIÓN - iOS Native Shadows
+   * ================================================ */
+  
+  // iOS usa sombras muy sutiles
+  --ios-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --ios-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --ios-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  
+  /* ================================================
+   * BORDER RADIUS - iOS Rounded Corners
+   * ================================================ */
+  
+  --ios-radius-sm: 8px;    // Botones pequeños, chips
+  --ios-radius-md: 10px;   // Cards, botones medianos
+  --ios-radius-lg: 12px;   // Modales, sheets
+  --ios-radius-xl: 16px;   // Cards grandes
+  
+  /* ================================================
+   * COMPONENTES ESPECÍFICOS iOS
+   * ================================================ */
+  
+  // Headers - Estilo iOS nativo
+  .custom-header {
+    background: var(--ios-bg-primary);
+    border-bottom: 0.5px solid var(--ios-separator);
+    padding: var(--ios-spacing-md) var(--ios-spacing-md) var(--ios-spacing-sm);
+    
+    h1 {
+      font-size: var(--ios-font-size-large-title);
+      font-weight: var(--ios-font-weight-bold);
+      letter-spacing: -0.5px;
+      margin: 0;
+      color: #000000;
+    }
+    
+    .header-title {
+      font-size: var(--ios-font-size-headline);
+      font-weight: var(--ios-font-weight-semibold);
+      margin: 0;
+      color: #000000;
+    }
+    
+    ion-back-button {
+      --color: var(--ios-blue);
+      font-size: var(--ios-font-size-body);
+      font-weight: var(--ios-font-weight-regular);
+    }
+  }
+  
+  // Cards - Estilo iOS con sombras sutiles
+  .category-card,
+  .task-item {
+    background: var(--ios-bg-primary);
+    border-radius: var(--ios-radius-md);
+    box-shadow: var(--ios-shadow-sm);
+    border: none;
+    
+    &:active {
+      transform: scale(0.98);
+      transition: transform 0.1s ease-in-out;
+    }
+  }
+  
+  // Botones - Estilo iOS nativo
+  ion-button {
+    --border-radius: var(--ios-radius-sm);
+    font-size: var(--ios-font-size-body);
+    font-weight: var(--ios-font-weight-semibold);
+    letter-spacing: -0.2px;
+    text-transform: none;
+    
+    &.button-solid {
+      --box-shadow: var(--ios-shadow-sm);
+    }
+  }
+  
+  // Action Sheet - Estilo iOS nativo
+  ion-action-sheet {
+    --button-color: var(--ios-blue);
+    --button-color-selected: var(--ios-blue);
+    
+    .action-sheet-group {
+      background: var(--ios-bg-tertiary);
+      border-radius: var(--ios-radius-lg);
+      
+      .action-sheet-button {
+        font-size: var(--ios-font-size-title3);
+        font-weight: var(--ios-font-weight-regular);
+        height: 57px;
+        
+        &.action-sheet-cancel {
+          font-weight: var(--ios-font-weight-semibold);
+        }
+        
+        &.action-sheet-destructive {
+          color: var(--ios-red);
+        }
+      }
+    }
+  }
+  
+  // Modal - Estilo iOS nativo
+  ion-modal {
+    --border-radius: var(--ios-radius-lg);
+    --box-shadow: var(--ios-shadow-lg);
+    
+    &.modal-card {
+      --height: auto;
+      --border-radius: var(--ios-radius-xl);
+    }
+  }
+  
+  // Alert - Estilo iOS nativo
+  ion-alert {
+    --background: var(--ios-bg-tertiary);
+    --max-width: 270px;
+    
+    .alert-wrapper {
+      border-radius: var(--ios-radius-lg);
+      box-shadow: var(--ios-shadow-lg);
+    }
+    
+    .alert-title {
+      font-size: var(--ios-font-size-headline);
+      font-weight: var(--ios-font-weight-semibold);
+    }
+    
+    .alert-message {
+      font-size: var(--ios-font-size-subheadline);
+      color: var(--ios-gray);
+    }
+    
+    .alert-button {
+      font-size: var(--ios-font-size-body);
+      color: var(--ios-blue);
+      
+      &.alert-button-role-cancel {
+        font-weight: var(--ios-font-weight-semibold);
+      }
+      
+      &.alert-button-role-destructive {
+        color: var(--ios-red);
+      }
+    }
+  }
+  
+  // List - Estilo iOS nativo
+  ion-list {
+    background: var(--ios-bg-primary);
+    
+    ion-item {
+      --border-color: var(--ios-separator);
+      --padding-start: var(--ios-spacing-md);
+      --padding-end: var(--ios-spacing-md);
+      --inner-padding-end: 0;
+      
+      ion-label {
+        font-size: var(--ios-font-size-body);
+        margin: var(--ios-spacing-sm) 0;
+      }
+    }
+  }
+  
+  // Toolbar - Estilo iOS nativo
+  ion-toolbar {
+    --background: var(--ios-bg-primary);
+    --border-color: var(--ios-separator);
+    --padding-top: var(--ios-spacing-sm);
+    --padding-bottom: var(--ios-spacing-sm);
+    --min-height: 44px;
+    
+    ion-title {
+      font-size: var(--ios-font-size-headline);
+      font-weight: var(--ios-font-weight-semibold);
+    }
+  }
+  
+  // FAB - Estilo iOS nativo
+  ion-fab-button {
+    --background: var(--ios-blue);
+    --border-radius: 50%;
+    --box-shadow: var(--ios-shadow-md);
+    
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+  
+  // Input - Estilo iOS nativo
+  ion-input,
+  ion-textarea {
+    --background: var(--ios-bg-secondary);
+    --border-radius: var(--ios-radius-sm);
+    --padding-start: var(--ios-spacing-md);
+    --padding-end: var(--ios-spacing-md);
+    font-size: var(--ios-font-size-body);
+    
+    &.has-focus {
+      --background: var(--ios-bg-primary);
+      --border-color: var(--ios-blue);
+    }
+  }
+  
+  // Segment - Estilo iOS nativo
+  ion-segment {
+    --background: var(--ios-bg-secondary);
+    border-radius: var(--ios-radius-sm);
+    padding: 2px;
+    
+    ion-segment-button {
+      --color: var(--ios-gray);
+      --color-checked: #000000;
+      --indicator-color: var(--ios-bg-primary);
+      --indicator-box-shadow: var(--ios-shadow-sm);
+      font-size: var(--ios-font-size-subheadline);
+      font-weight: var(--ios-font-weight-regular);
+      
+      &.segment-button-checked {
+        font-weight: var(--ios-font-weight-semibold);
+      }
+    }
+  }
+  
+  // Skeleton - Loading con estilo iOS
+  .skeleton-item {
+    background: linear-gradient(
+      90deg,
+      var(--ios-gray6) 0%,
+      var(--ios-gray5) 50%,
+      var(--ios-gray6) 100%
+    );
+    border-radius: var(--ios-radius-md);
+    animation: ios-shimmer 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes ios-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  /* ================================================
+   * ANIMACIONES - iOS Native Animations
+   * ================================================ */
+  
+  // Animaciones más suaves y naturales estilo iOS
+  * {
+    --ion-transition-duration: 280ms;
+    --ion-transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+  
+  // Page transitions iOS style
+  .ion-page {
+    will-change: transform;
+  }
+}
