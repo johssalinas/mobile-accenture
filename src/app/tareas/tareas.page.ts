@@ -1,6 +1,6 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { 
   IonContent,
   AlertController,
@@ -8,8 +8,9 @@ import {
 } from '@ionic/angular/standalone';
 
 import { Task, TaskHeaderConfig } from '../core/models/task.model';
-import { FirebaseTaskService } from '../core/services/firebase-task.service';
+import { TaskService } from '../core/services/task.service';
 import { TaskDialogService } from '../core/services/task-dialog.service';
+import { CategoryService } from '../core/services/category.service';
 
 // Componentes granulares
 import { TaskHeaderComponent } from '../shared/components/task-header/task-header.component';
@@ -35,11 +36,13 @@ import { TaskOptionsComponent } from '../shared/components/task-options/task-opt
     TaskOptionsComponent
   ],
 })
-export class TareasPage {
+export class TareasPage implements OnInit {
   // Inyección usando la función inject (Angular 20 best practice)
-  private readonly taskService = inject(FirebaseTaskService);
+  private readonly taskService = inject(TaskService);
   private readonly taskDialogService = inject(TaskDialogService);
+  private readonly categoryService = inject(CategoryService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly navController = inject(NavController);
 
   /** Signal para la tarea seleccionada */
@@ -48,17 +51,57 @@ export class TareasPage {
   /** Signal para el estado del action sheet */
   protected readonly isActionSheetOpen = signal(false);
   
-  /** Configuración del header */
-  protected readonly headerConfig: TaskHeaderConfig = {
-    title: 'Trabajo',
+  /** Signal para el ID de la categoría actual */
+  protected readonly currentCategoryId = signal<string | null>(null);
+  
+  /** Configuración del header (se actualizará con el nombre de la categoría) */
+  protected readonly headerConfig = signal<TaskHeaderConfig>({
+    title: 'Tareas',
     showBackButton: true
-  };
+  });
   
-  /** Acceso directo a las tareas del servicio (signal readonly) */
-  protected readonly tasks = this.taskService.tasks;
+  /** Computed signal para tareas filtradas por categoría */
+  protected readonly tasks = computed<Task[]>(() => {
+    const categoryId = this.currentCategoryId();
+    const allTasks = this.taskService.tasks();
+    
+    // Si no hay categoría seleccionada, mostrar todas las tareas
+    if (!categoryId) {
+      return allTasks;
+    }
+    
+    // Filtrar solo las tareas de la categoría actual
+    return allTasks.filter(task => task.categoryId === categoryId);
+  });
   
-  /** Computed signals del servicio para estadísticas */
-  protected readonly taskStats = this.taskService.taskStats;
+  /** Computed signal para estadísticas de tareas filtradas */
+  protected readonly taskStats = computed(() => {
+    const filteredTasks = this.tasks();
+    return {
+      total: filteredTasks.length,
+      completed: filteredTasks.filter(t => t.completed).length,
+      pending: filteredTasks.filter(t => !t.completed).length
+    };
+  });
+
+  ngOnInit(): void {
+    // Capturar el categoryId de los queryParams
+    this.route.queryParams.subscribe(params => {
+      const categoryId = params['categoryId'];
+      this.currentCategoryId.set(categoryId || null);
+      
+      // Actualizar el título del header con el nombre de la categoría
+      if (categoryId) {
+        const category = this.categoryService.getCategoryById(categoryId);
+        if (category) {
+          this.headerConfig.set({
+            title: category.name,
+            showBackButton: true
+          });
+        }
+      }
+    });
+  }
 
   /**
    * Maneja el click en el botón de retroceso del header
@@ -95,12 +138,18 @@ export class TareasPage {
 
   /**
    * Inicia el proceso de agregar una nueva tarea
+   * Asigna automáticamente la categoría actual si existe
    */
   protected async onAddNewTask(): Promise<void> {
     const taskData = await this.taskDialogService.showCreateTaskDialog();
     
     if (taskData) {
-      this.taskService.createTask(taskData);
+      // Asignar la categoría actual automáticamente
+      const categoryId = this.currentCategoryId();
+      this.taskService.createTask({
+        ...taskData,
+        categoryId: categoryId || undefined
+      });
     }
   }
 

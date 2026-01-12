@@ -6,7 +6,7 @@ import { IonContent } from '@ionic/angular/standalone';
 import { CategoryWithCount, CategoryHeaderConfig } from '../core/models/category.model';
 import { CategoryService } from '../core/services/category.service';
 import { CategoryDialogService } from '../core/services/category-dialog.service';
-import { FirebaseTaskService } from '../core/services/firebase-task.service';
+import { TaskService } from '../core/services/task.service';
 
 // Componentes granulares
 import { CategoryHeaderComponent } from '../shared/components/category-header/category-header.component';
@@ -38,7 +38,7 @@ export class CategoriesPage {
   // Inyección usando la función inject (Angular 20 best practice)
   private readonly categoryService = inject(CategoryService);
   private readonly categoryDialogService = inject(CategoryDialogService);
-  private readonly taskService = inject(FirebaseTaskService);
+  private readonly taskService = inject(TaskService);
   private readonly router = inject(Router);
 
   /** Signal para la categoría seleccionada */
