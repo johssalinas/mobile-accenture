@@ -1,0 +1,86 @@
+:host {
+  display: block;
+}
+
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--separator-color, #f2f2f7);
+  position: relative;
+  transition: background-color 0.2s ease;
+  
+  &.task-selected {
+    background-color: rgba(43, 124, 238, 0.05);
+    margin: 0 -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 8px;
+  }
+}
+
+.task-content {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.task-checkbox-wrapper {
+  padding-top: 2px;
+}
+
+.task-checkbox {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--text-tertiary, #c7c7cc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background-color: transparent;
+  
+  &.task-checkbox-checked {
+    background-color: var(--primary-color, #2b7cee);
+    border-color: var(--primary-color, #2b7cee);
+  }
+  
+  .check-icon {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
+
+.task-description-wrapper {
+  flex: 1;
+}
+
+.task-description {
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--text-primary, #000000);
+  margin: 0;
+  word-wrap: break-word;
+  
+  &.task-completed {
+    color: var(--text-secondary, #8e8e93);
+    text-decoration: line-through;
+  }
+}
+
+.task-more-button {
+  --color: var(--text-secondary, #8e8e93);
+  --padding-start: 8px;
+  --padding-end: 8px;
+  margin: 0;
+  height: 32px;
+  
+  ion-icon {
+    font-size: 20px;
+  }
+}

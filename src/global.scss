@@ -34,4 +34,139 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */
+
+/**
+ * Custom Global Styles
+ * -----------------------------------------------------
+ * Estilos globales personalizados para la aplicación
+ */
+
+// Importar fuente Inter para un look más moderno
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
+// Resetear estilos por defecto de Ionic para un look más nativo
+ion-header {
+  &.ion-no-border::after {
+    background-image: none;
+  }
+}
+
+ion-toolbar {
+  --border-width: 0;
+}
+
+// Mejorar la apariencia de los botones
+ion-button {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+// Estilos para alertas y action sheets (iOS style)
+ion-alert {
+  --backdrop-opacity: 0.4;
+  
+  .alert-wrapper {
+    border-radius: 14px;
+  }
+  
+  .alert-head {
+    padding-top: 19px;
+    padding-bottom: 8px;
+  }
+  
+  .alert-title {
+    font-size: 17px;
+    font-weight: 600;
+    text-align: center;
+  }
+  
+  .alert-message {
+    font-size: 13px;
+    text-align: center;
+    color: var(--ion-color-step-600, #666);
+  }
+  
+  .alert-input {
+    border: 1px solid var(--ion-color-step-200, #e0e0e0);
+    border-radius: 8px;
+    padding: 11px 13px;
+    font-size: 17px;
+    
+    &:focus {
+      border-color: var(--ion-color-primary, #2b7cee);
+    }
+  }
+  
+  .alert-button {
+    font-size: 17px;
+    font-weight: 400;
+    
+    &.alert-button-role-cancel {
+      font-weight: 600;
+    }
+  }
+}
+
+ion-action-sheet {
+  --backdrop-opacity: 0.4;
+  
+  .action-sheet-wrapper {
+    margin: 8px;
+  }
+  
+  .action-sheet-container {
+    border-radius: 14px;
+  }
+  
+  .action-sheet-group {
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  
+  .action-sheet-button {
+    font-size: 20px;
+    height: 57px;
+    
+    &:not(:last-child) {
+      border-bottom: 0.55px solid var(--ion-color-step-150, #d1d1d6);
+    }
+  }
+  
+  .action-sheet-cancel {
+    border-radius: 14px;
+    margin-top: 8px;
+    font-weight: 600;
+  }
+  
+  .action-sheet-destructive {
+    color: var(--ion-color-danger, #ff3b30);
+  }
+  
+  .action-sheet-icon {
+    margin-right: 0;
+    margin-left: auto;
+    order: 2;
+  }
+  
+  .action-sheet-button {
+    .button-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+  }
+}
+
+// Prevenir selección de texto en elementos interactivos
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

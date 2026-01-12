@@ -1,0 +1,40 @@
+<div 
+  class="task-item"
+  [class.task-selected]="selected()"
+>
+  <div class="task-content" (click)="onToggle()">
+    <!-- Checkbox -->
+    <div class="task-checkbox-wrapper">
+      <div 
+        class="task-checkbox"
+        [class.task-checkbox-checked]="task().completed"
+      >
+        @if (task().completed) {
+          <ion-icon 
+            name="checkmark"
+            class="check-icon"
+          ></ion-icon>
+        }
+      </div>
+    </div>
+
+    <!-- Descripción de la tarea -->
+    <div class="task-description-wrapper">
+      <p 
+        class="task-description"
+        [class.task-completed]="task().completed"
+      >
+        {{ task().description }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Botón de opciones -->
+  <ion-button 
+    fill="clear" 
+    class="task-more-button"
+    (click)="onOptionsClick($event)"
+  >
+    <ion-icon slot="icon-only" name="ellipsis-horizontal"></ion-icon>
+  </ion-button>
+</div>
