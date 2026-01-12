@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 
 import { CategoryWithCount, CategoryHeaderConfig } from '../core/models/category.model';
-import { FirebaseCategoryService } from '../core/services/firebase-category.service';
+import { CategoryService } from '../core/services/category.service';
 import { CategoryDialogService } from '../core/services/category-dialog.service';
 import { FirebaseTaskService } from '../core/services/firebase-task.service';
 
@@ -36,7 +36,7 @@ import { CategoryOptionsComponent } from '../shared/components/category-options/
 })
 export class CategoriesPage {
   // Inyección usando la función inject (Angular 20 best practice)
-  private readonly categoryService = inject(FirebaseCategoryService);
+  private readonly categoryService = inject(CategoryService);
   private readonly categoryDialogService = inject(CategoryDialogService);
   private readonly taskService = inject(FirebaseTaskService);
   private readonly router = inject(Router);
