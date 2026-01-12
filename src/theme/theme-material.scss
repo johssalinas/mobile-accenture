@@ -455,12 +455,14 @@
       opacity: 0.5;
     }
   }
-  
-  /* ================================================
-   * ANIMACIONES - Material Design 3 Motion
-   * ================================================ */
-  
-  // Material Design usa timing functions específicas
+}
+
+/* ================================================
+ * ANIMACIONES - Material Design 3 Motion
+ * ================================================ */
+
+// Material Design usa timing functions específicas
+:root {
   --md-easing-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
   --md-easing-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
   --md-easing-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
@@ -478,39 +480,39 @@
   --md-duration-long2: 500ms;
   --md-duration-long3: 550ms;
   --md-duration-long4: 600ms;
+}
+
+* {
+  --ion-transition-duration: var(--md-duration-medium2);
+  --ion-transition-timing-function: var(--md-easing-standard);
+}
+
+// Ripple effect para interacciones
+.md-ripple {
+  position: relative;
+  overflow: hidden;
   
-  * {
-    --ion-transition-duration: var(--md-duration-medium2);
-    --ion-transition-timing-function: var(--md-easing-standard);
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.1);
+    transform: translate(-50%, -50%);
+    transition: width var(--md-duration-medium4) var(--md-easing-decelerate),
+                height var(--md-duration-medium4) var(--md-easing-decelerate);
   }
   
-  // Ripple effect para interacciones
-  .md-ripple {
-    position: relative;
-    overflow: hidden;
-    
-    &::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.1);
-      transform: translate(-50%, -50%);
-      transition: width var(--md-duration-medium4) var(--md-easing-decelerate),
-                  height var(--md-duration-medium4) var(--md-easing-decelerate);
-    }
-    
-    &:active::after {
-      width: 200%;
-      height: 200%;
-    }
+  &:active::after {
+    width: 200%;
+    height: 200%;
   }
-  
-  // Page transitions Material Design style
-  .ion-page {
-    will-change: transform, opacity;
-  }
+}
+
+// Page transitions Material Design style
+.ion-page {
+  will-change: transform, opacity;
 }
