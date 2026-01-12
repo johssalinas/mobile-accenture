@@ -23,7 +23,7 @@ export class CategoryOptionsComponent {
   protected get actionSheetButtons(): CategoryActionConfig[] {
     return [
       {
-        text: 'Editar Nombre/Icono',
+        text: 'Editar Nombre',
         handler: () => {
           if (this.selectedCategory) {
             this.editCategory.emit(this.selectedCategory);

@@ -2,8 +2,23 @@
   display: flex;
   flex-direction: column;
   padding: 16px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  // Efecto hover para desktop
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  // Efecto active (cuando se presiona)
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
 
   .category-icon-container {
     display: flex;
@@ -14,6 +29,7 @@
     border-radius: 50%;
     margin-bottom: 24px;
     flex-shrink: 0;
+    transition: transform 0.2s ease;
 
     .category-icon {
       font-size: 30px;

@@ -218,3 +218,22 @@ ion-action-sheet {
   -ms-user-select: none;
   user-select: none;
 }
+
+/**
+ * Estilos personalizados para alerts de categorías
+ */
+.category-delete-alert {
+  .alert-message {
+    white-space: pre-line;
+    text-align: left;
+  }
+}
+
+.alert-button-cancel {
+  color: var(--ion-color-primary) !important;
+}
+
+.alert-button-destructive {
+  color: var(--ion-color-danger) !important;
+  font-weight: 600;
+}
