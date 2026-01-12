@@ -83,6 +83,9 @@ export class TareasPage implements OnInit {
       pending: filteredTasks.filter(t => !t.completed).length
     };
   });
+  
+  /** Signal para el estado de carga */
+  protected readonly isLoading = this.taskService.loading;
 
   ngOnInit(): void {
     // Capturar el categoryId de los queryParams
