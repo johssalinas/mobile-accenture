@@ -132,29 +132,3 @@ resource "aws_lambda_permission" "api_gateway_invoke" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.ai_proxy_api.execution_arn}/*/*"
 }
-
-# Outputs
-output "api_endpoint" {
-  description = "API Gateway endpoint URL"
-  value       = "${aws_apigatewayv2_api.ai_proxy_api.api_endpoint}/${var.environment}"
-}
-
-output "suggest_endpoint" {
-  description = "Full URL for suggest endpoint"
-  value       = "${aws_apigatewayv2_api.ai_proxy_api.api_endpoint}/${var.environment}/suggest"
-}
-
-output "health_endpoint" {
-  description = "Full URL for health check endpoint"
-  value       = "${aws_apigatewayv2_api.ai_proxy_api.api_endpoint}/${var.environment}/health"
-}
-
-output "lambda_function_name" {
-  description = "Lambda function name"
-  value       = aws_lambda_function.ai_proxy.function_name
-}
-
-output "lambda_function_arn" {
-  description = "Lambda function ARN"
-  value       = aws_lambda_function.ai_proxy.arn
-}
