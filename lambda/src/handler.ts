@@ -53,22 +53,32 @@ async function generateAISuggestion(
 ): Promise<AISuggestionResponse> {
   const model = await loadModel(modelString);
   
-  const prompt = `Sugiere un ícono de Ionicons y un color para una categoría llamada "${categoryName}".
+  const prompt = `Sugiere un ícono de Ionicons 7.x y un color hexadecimal para una categoría llamada "${categoryName}".
 
-REGLAS IMPORTANTES:
-1. El ícono DEBE ser un nombre válido de Ionicons 7.x (sin prefijo "ion-" ni sufijo "-outline")
-2. El color DEBE ser en formato hexadecimal (#RRGGBB)
-3. Responde SOLO con JSON, sin markdown ni explicaciones
+REGLAS CRÍTICAS:
+1. El ícono DEBE incluir el sufijo "-outline" (ej: "people-outline", "home-outline", "cart-outline")
+2. El color DEBE ser formato hexadecimal válido (#RRGGBB)
+3. Responde SOLO con JSON válido, sin markdown , sin explicaciones
 
 Formato de respuesta:
 {
-  "icon": "nombre-del-icono",
-  "color": "#hexcolor"
+  "icon": "nombre-outline",
+  "color": "#RRGGBB"
 }
 
-Ejemplos de iconos válidos: home, briefcase, fitness, restaurant, book, airplane, cart, medical, music, game-controller, school, wallet, heart, star, trophy
+Ejemplos válidos:
+- Amigos/Social: "people-outline", "#FF5733"
+- Trabajo: "briefcase-outline", "#3498db"  
+- Fitness: "fitness-outline", "#e74c3c"
+- Comida: "restaurant-outline", "#f39c12"
+- Música: "musical-notes-outline", "#9b59b6"
+- Viajes: "airplane-outline", "#1abc9c"
+- Compras: "cart-outline", "#e67e22"
+- Estudio: "book-outline", "#3498db"
+- Casa: "home-outline", "#95a5a6"
+- Salud: "medkit-outline", "#e74c3c"
 
-Responde SOLO con el JSON:`;
+Responde SOLO el JSON:`;
 
   const { text } = await generateText({
     model,
