@@ -86,12 +86,22 @@ jobs:
     - name: Build APK firmado (release)
       run: |
         cd platforms/android
+        
+        # Verificar si gradlew existe, si no, generarlo
+        if [ ! -f "gradlew" ]; then
+          echo "🔧 Generando Gradle wrapper..."
+          gradle wrapper
+        fi
+        
+        # Hacer ejecutable y compilar
         chmod +x gradlew
+        echo "🔨 Compilando APK release..."
         ./gradlew assembleRelease
     
     - name: Build AAB firmado (para Play Store)
       run: |
         cd platforms/android
+        echo "📦 Compilando AAB para Play Store..."
         ./gradlew bundleRelease
     
     - name: Verificar archivos generados

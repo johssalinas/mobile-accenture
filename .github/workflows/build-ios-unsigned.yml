@@ -50,10 +50,17 @@ jobs:
     - name: Configurar deployment target iOS 12.0
       run: |
         cd platforms/ios
-        # Actualizar deployment target en el proyecto principal
-        sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 11.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' App.xcodeproj/project.pbxproj
-        # Actualizar en CordovaLib
-        sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 11.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' CordovaLib/CordovaLib.xcodeproj/project.pbxproj
+        echo "🔧 Configurando iOS deployment target a 12.0..."
+        
+        # Buscar y actualizar todos los archivos project.pbxproj
+        find . -name "project.pbxproj" -type f | while read file; do
+          if [ -f "$file" ]; then
+            echo "Actualizando $file"
+            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 11\.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' "$file"
+            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 10\.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' "$file"
+            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 9\.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' "$file"
+          fi
+        done
     
     - name: Compilar Xcode sin firma
       run: |

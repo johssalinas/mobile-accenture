@@ -63,7 +63,16 @@ jobs:
     - name: Build APK con Gradle (debug)
       run: |
         cd platforms/android
+        
+        # Verificar si gradlew existe, si no, generarlo
+        if [ ! -f "gradlew" ]; then
+          echo "🔧 Generando Gradle wrapper..."
+          gradle wrapper
+        fi
+        
+        # Hacer ejecutable y compilar
         chmod +x gradlew
+        echo "🔨 Compilando APK debug..."
         ./gradlew assembleDebug
     
     - name: Verificar APK generado
