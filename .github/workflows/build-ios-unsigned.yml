@@ -1,14 +1,14 @@
-name: Build iOS IPA (Sin Firma)
+name: Build iOS App (Simulador)
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:  # Permite ejecutar manualmente
+  workflow_dispatch:
 
 jobs:
-  build-ios:
+  build-ios-simulator:
     runs-on: macos-latest
     
     steps:
@@ -45,225 +45,107 @@ jobs:
       run: npm run build:prod
     
     - name: Añadir plataforma iOS
-      run: |
-        npx cordova platform add ios --no-interactive
-        
-        # Verificar que la plataforma se agregó correctamente
-        ls -la platforms/ios/
+      run: npx cordova platform add ios --no-interactive
     
-    - name: Configurar deployment target iOS 12.0
+    - name: Compilar para iOS Simulator
       run: |
         cd platforms/ios
-        echo "🔧 Configurando iOS deployment target a 12.0..."
-        
-        # Buscar y actualizar todos los archivos project.pbxproj
-        find . -name "project.pbxproj" -type f | while read file; do
-          if [ -f "$file" ]; then
-            echo "Actualizando $file"
-            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 11\.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' "$file"
-            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 10\.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' "$file"
-            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 9\.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' "$file"
-          fi
-        done
-        
-        # Verificar configuración
-        echo "Verificando configuración del proyecto..."
-        ls -la *.xcodeproj/ *.xcworkspace/ 2>/dev/null || true
-    
-    - name: Compilar Xcode sin firma (método simplificado)
-      run: |
-        cd platforms/ios
-        echo "🔨 Compilando proyecto iOS sin firma de código..."
-        
-        # Limpiar builds anteriores
-        rm -rf build/ 2>/dev/null || true
-        
-        # Método simplificado: compilar solo para generar .app
-        echo "📋 Intentando compilación básica..."
-        set -e  # Fail on any error
+        echo "🔨 Compilando para iOS Simulator (no requiere firma)..."
         
         xcodebuild -workspace *.xcworkspace \
                    -scheme App \
                    -configuration Release \
-                   -destination 'generic/platform=iOS' \
-                   CODE_SIGN_IDENTITY="" \
-                   CODE_SIGNING_REQUIRED=NO \
-                   CODE_SIGNING_ALLOWED=NO \
-                   PROVISIONING_PROFILE="" \
-                   DEVELOPMENT_TEAM="" \
+                   -sdk iphonesimulator \
+                   -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
                    build
         
         echo "✅ Compilación completada"
     
-    - name: Verificar .app generado
+    - name: Verificar y empaquetar .app
       run: |
-        echo "📱 Verificando archivos generados:"
+        echo "📱 Buscando archivo .app generado..."
         cd platforms/ios
         
-        # Buscar todos los archivos .app
-        echo "🔍 Buscando archivos .app..."
-        find . -name "*.app" -type d | while read app; do
-          echo "  Encontrado: $app"
-          ls -la "$app" | head -5
-        done
+        APP_PATH=$(find . -path "*/Release-iphonesimulator/*.app" -type d | head -n 1)
         
-        # Verificar estructura de build
-        echo ""
-        echo "📁 Estructura de directorios build:"
-        find . -name "build" -type d | while read dir; do
-          echo "  Build dir: $dir"
-          ls -la "$dir" 2>/dev/null | head -3
-        done
-        
-        # Verificar si hay algún producto generado
-        cd platforms/ios
-        
-        # Buscar .app (ahora sabemos que existe al menos uno)
-        APP_NAME=$(find . -name "*.app" -type d | head -n 1)
-        
-        if [ -z "$APP_NAME" ]; then
-          echo "❌ Error crítico: .app desapareció después de la verificación"
+        if [ -z "$APP_PATH" ]; then
+          echo "❌ No se encontró .app para simulador"
+          find . -name "*.app" -type d
           exit 1
         fi
         
-        # Volver a la raíz y copiar
+        echo "✅ Encontrado: $APP_PATH"
+        
+        # Crear estructura para "IPA" (realmente es .app comprimido para simulador)
         cd ../..
-        echo "📱 Copiando platforms/ios/$APP_NAME"
-        cp -r "platforms/ios/$APP_NAME" build/Payload/
+        mkdir -p build
+        cp -r "platforms/ios/$APP_PATH" build/
         
-        # Verificar que se copió correctamente
-        ls -laE" ]; then
-          APP_NAME=$(find platforms/ios -path "*/Release-iphoneos/*.app" -type d | head -n 1)
-        fi
-        
-        # Intentar encontrar en Products
-        if [ -z "$APP_NAME" ]; then
-          APP_NAME=$(find platforms/ios -path "*/Products/*/*.app" -type d | head -n 1)
-        fi
-        
-        # Buscar cualquier .app en iOS
-        if [ -z "$APP_NAME" ]; then
-          APP_NAME=$(find platforms/ios -name "*.app" -type d | head -n 1)
-        fi
-        
-        if [ -z "$APP_NAME" ]; then
-          echo "❌ Error: No se encontró archivo .app en ninguna ubicación"
-          echo "Listando todo el contenido de platforms/ios:"
-          find platforms/ios -type f -name "*.app" 2>/dev/null || true
-          find platforms/ios -type d -name "*.app" 2>/dev/null || true
-          exit 1
-        fi
-        
-        echo "📱 Copiando $APP_NAME"
-        cp -r "$APP_NAME" build/Payload/
-        
-        # Crear IPA
+        APP_NAME=$(basename "$APP_PATH")
         cd build
-        IPA_NAME="TodoApp_Unsigned_iOS.ipa"
-        zip -r "$IPA_NAME" Payload
+        zip -r "TodoApp_Simulator.zip" "$APP_NAME"
         
-        echo "✅ IPA creado: $IPA_NAME"
-        echo "📊 Tamaño: $(du -h "$IPA_NAME" | cut -f1)"
+        echo "✅ App para simulador empaquetada"
+        ls -lh TodoApp_Simulator.zip
     
-    - name: Subir IPA como artefacto
+    - name: Subir app como artefacto
       uses: actions/upload-artifact@v4
       with:
-        name: ios-app-unsigned
-        path: build/TodoApp_Unsigned_iOS.ipa
+        name: ios-app-simulator
+        path: build/TodoApp_Simulator.zip
         retention-days: 30
     
-    - name: Crear documentación para evaluadores
+    - name: Crear documentación
       run: |
-        cat > build/INSTRUCCIONES_IPA.md << 'EOF'
-        # Instrucciones para el IPA sin firma
+        cat > build/INSTRUCCIONES_iOS.md << 'EOF'
+        # App iOS para Simulador
         
-        ## ⚠️ ¿Por qué no está firmado?
+        ## ℹ️ Información
         
-        Este IPA no incluye firma de código porque requiere:
-        - Cuenta de Apple Developer ($99/año)
-        - Certificados de distribución
-        - UUIDs de dispositivos específicos
+        Esta aplicación fue compilada para **iOS Simulator**, no para dispositivos físicos.
         
-        ## ✅ Contenido del IPA
+        ### ¿Por qué simulador?
         
-        El IPA incluye:
-        - ✅ Código compilado de la aplicación
-        - ✅ Assets (imágenes, iconos, splash screens)
-        - ✅ Configuración de la app
-        - ✅ Todos los recursos necesarios
-        - ❌ Firma de código (requiere cuenta Apple Developer)
+        - No requiere cuenta Apple Developer ($99/año)
+        - No necesita certificados de firma
+        - Permite demostración técnica del código iOS
         
-        ## 🔧 ¿Cómo instalar el IPA?
+        ### ¿Cómo usar?
         
-        ### Opción 1: Re-firmar con sus propios certificados
+        1. Descomprimir `TodoApp_Simulator.zip`
+        2. Arrastra el archivo `.app` al Simulator de Xcode
+        3. O usa: `xcrun simctl install booted path/to/App.app`
         
-        Si tienen cuenta Apple Developer, pueden re-firmar:
+        ### Para dispositivos físicos
+        
+        El código fuente está disponible en el repositorio.
+        Con cuenta Apple Developer puedes:
         ```bash
-        # Usando herramientas de firma
-        ios-app-signer --input TodoApp_Unsigned_iOS.ipa --output TodoApp_Signed.ipa
-        ```
-        
-        ### Opción 2: Instalar desde código fuente
-        
-        El código fuente completo está en el repositorio:
-        ```bash
-        git clone https://github.com/johssalinas/mobile-accenture
-        cd mobile-accenture
-        npm install
-        ionic cordova build ios --prod
-        # Abrir en Xcode y firmar con su cuenta
         open platforms/ios/*.xcworkspace
+        # Firmar en Xcode y exportar IPA
         ```
         
-        ### Opción 3: Verificar contenido del IPA
+        ## Contenido
         
-        ```bash
-        # Extraer contenido
-        unzip TodoApp_Unsigned_iOS.ipa
-        cd Payload/*.app
-        
-        # Revisar recursos, assets, configuración
-        ls -la
-        ```
-        
-        ## 📋 Información técnica
-        
-        - **Min iOS**: 13.0
-        - **Target iOS**: 17.0
-        - **Arquitectura**: arm64 (iPhone universal)
-        - **Configuración**: Release
-        - **Framework**: Ionic + Angular + Cordova
-        
-        ## 🔗 Recursos
-        
-        - [Repositorio](https://github.com/johssalinas/mobile-accenture)
-        - [Documentación completa](https://github.com/johssalinas/mobile-accenture/blob/main/docs/GITHUB_ACTIONS_ANDROID.md)
+        - ✅ Código compilado (arm64 simulator)
+        - ✅ Assets y recursos
+        - ✅ Configuración completa
+        - ⚠️ Solo funciona en Simulator, no en dispositivos reales
         EOF
-        
-        echo "✅ Documentación creada"
     
     - name: Subir documentación
       uses: actions/upload-artifact@v4
       with:
         name: ios-instrucciones
-        path: build/INSTRUCCIONES_IPA.md
+        path: build/INSTRUCCIONES_iOS.md
         retention-days: 30
     
-    - name: Mostrar resumen
+    - name: Resumen
       run: |
+        echo "✅ Build de iOS Simulator completado"
+        echo "📦 Artefactos generados:"
+        echo "   - ios-app-simulator: App para iOS Simulator"
+        echo "   - ios-instrucciones: Documentación de uso"
         echo ""
-        echo "✅ IPA generado exitosamente (SIN FIRMA)"
-        echo ""
-        echo "📱 Archivo: TodoApp_Unsigned_iOS.ipa"
-        echo "📊 Tamaño: $(du -h build/TodoApp_Unsigned_iOS.ipa | cut -f1)"
-        echo ""
-        echo "⚠️  IMPORTANTE:"
-        echo "   - Este IPA NO está firmado"
-        echo "   - NO se puede instalar directamente en dispositivos iOS"
-        echo "   - Requiere re-firma con certificados de Apple Developer"
-        echo "   - Demuestra que el código iOS compila correctamente"
-        echo ""
-        echo "🔗 Descarga desde:"
-        echo "   Actions → Este workflow → Artifacts → ios-app-unsigned"
-        echo ""
-        echo "📖 Lee INSTRUCCIONES_IPA.md para más información"
+        echo "⚠️  NOTA: Esta app funciona solo en iOS Simulator"
+        echo "Para dispositivos reales se requiere cuenta Apple Developer"
