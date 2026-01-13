@@ -30,6 +30,11 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
     
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v3
+      with:
+        gradle-version: 8.5
+    
     - name: Install Ionic CLI and Cordova
       run: |
         npm install -g @ionic/cli
@@ -64,10 +69,10 @@ jobs:
       run: |
         cd platforms/android
         
-        # Verificar si gradlew existe, si no, generarlo
+        # Verificar si gradlew existe, si no, generarlo con versión específica
         if [ ! -f "gradlew" ]; then
-          echo "🔧 Generando Gradle wrapper..."
-          gradle wrapper
+          echo "🔧 Generando Gradle wrapper v8.5..."
+          gradle wrapper --gradle-version 8.5
         fi
         
         # Hacer ejecutable y compilar

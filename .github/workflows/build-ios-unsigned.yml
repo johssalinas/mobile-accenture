@@ -45,7 +45,11 @@ jobs:
       run: npm run build:prod
     
     - name: Añadir plataforma iOS
-      run: npx cordova platform add ios --no-interactive
+      run: |
+        npx cordova platform add ios --no-interactive
+        
+        # Verificar que la plataforma se agregó correctamente
+        ls -la platforms/ios/
     
     - name: Configurar deployment target iOS 12.0
       run: |
@@ -61,37 +65,83 @@ jobs:
             sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 9\.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' "$file"
           fi
         done
+        
+        # Verificar configuración
+        echo "Verificando configuración del proyecto..."
+        ls -la *.xcodeproj/ *.xcworkspace/ 2>/dev/null || true
     
-    - name: Compilar Xcode sin firma
+    - name: Compilar Xcode sin firma (método simplificado)
       run: |
         cd platforms/ios
         echo "🔨 Compilando proyecto iOS sin firma de código..."
+        
+        # Método 1: Intentar con configuración mínima
         xcodebuild -workspace *.xcworkspace \
                    -scheme App \
                    -configuration Release \
-                   -sdk iphoneos \
-                   CODE_SIGNING_ALLOWED=NO \
+                   -destination 'generic/platform=iOS' \
+                   CODE_SIGN_IDENTITY="" \
                    CODE_SIGNING_REQUIRED=NO \
-                   ENTITLEMENTS_REQUIRED=NO \
-                   IPHONEOS_DEPLOYMENT_TARGET=12.0 \
-                   SWIFT_OPTIMIZATION_LEVEL=-Onone \
-                   clean build
+                   CODE_SIGNING_ALLOWED=NO \
+                   PROVISIONING_PROFILE="" \
+                   build \
+        || echo "Build method 1 failed, trying alternative..."
+        
+        # Método 2: Si falla, intentar con xcodebuild básico
+        if [ $? -ne 0 ]; then
+          echo "🔄 Intentando método alternativo..."
+          xcodebuild -project *.xcodeproj \
+                     -target App \
+                     -configuration Release \
+                     CODE_SIGN_IDENTITY="" \
+                     CODE_SIGNING_REQUIRED=NO \
+                     build || echo "Build method 2 also failed"
+        fi
     
     - name: Verificar .app generado
       run: |
-        echo "📱 Verificando archivo .app generado:"
-        find platforms/ios/build/Release-iphoneos -name "*.app" -type d
-        ls -lh platforms/ios/build/Release-iphoneos/
+        echo "📱 Verificando archivos generados:"
+        
+        # Buscar en múltiples ubicaciones posibles
+        echo "Buscando en build/Release-iphoneos..."
+        find platforms/ios -name "*.app" -type d 2>/dev/null | head -5
+        
+        echo ""
+        echo "Contenido del directorio iOS:"
+        find platforms/ios -name "build" -type d | head -3
+        
+        echo ""
+        echo "Estructura de productos generados:"
+        find platforms/ios -path "*/Products/*" -name "*.app" -type d 2>/dev/null | head -3
     
     - name: Empaquetar en IPA
       run: |
         echo "📦 Creando estructura IPA..."
         mkdir -p build/Payload
         
-        # Copiar .app a Payload
-        APP_NAME=$(find platforms/ios/build/Release-iphoneos -name "*.app" -type d -maxdepth 1 | head -n 1)
+        # Buscar .app en múltiples ubicaciones
+        APP_NAME=""
+        
+        # Intentar encontrar en build/Release-iphoneos
         if [ -z "$APP_NAME" ]; then
-          echo "❌ Error: No se encontró archivo .app"
+          APP_NAME=$(find platforms/ios -path "*/Release-iphoneos/*.app" -type d | head -n 1)
+        fi
+        
+        # Intentar encontrar en Products
+        if [ -z "$APP_NAME" ]; then
+          APP_NAME=$(find platforms/ios -path "*/Products/*/*.app" -type d | head -n 1)
+        fi
+        
+        # Buscar cualquier .app en iOS
+        if [ -z "$APP_NAME" ]; then
+          APP_NAME=$(find platforms/ios -name "*.app" -type d | head -n 1)
+        fi
+        
+        if [ -z "$APP_NAME" ]; then
+          echo "❌ Error: No se encontró archivo .app en ninguna ubicación"
+          echo "Listando todo el contenido de platforms/ios:"
+          find platforms/ios -type f -name "*.app" 2>/dev/null || true
+          find platforms/ios -type d -name "*.app" 2>/dev/null || true
           exit 1
         fi
         
