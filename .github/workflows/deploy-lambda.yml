@@ -184,15 +184,45 @@ jobs:
         working-directory: ./terraform
         run: terraform init
       
-      - name: Destroy existing resources (dev only)
+      - name: Clean existing resources (dev only)
         if: vars.ENVIRONMENT == 'dev' || github.event.inputs.environment == 'dev'
-        working-directory: ./terraform
         run: |
-          terraform destroy -auto-approve \
-            -var="openai_api_key=${{ secrets.OPENAI_API_KEY }}" \
-            -var="default_ai_model=${{ vars.DEFAULT_AI_MODEL || 'gpt-3.5-turbo' }}" \
-            -var="environment=${{ github.event.inputs.environment || 'dev' }}" \
-            || echo "No resources to destroy"
+          # Eliminar Lambda si existe
+          aws lambda delete-function \
+            --function-name mobile-accenture-dev-ai-proxy \
+            --region ${{ env.AWS_REGION }} \
+            2>/dev/null || echo "Lambda no existe"
+          
+          # Eliminar IAM Role policies y role
+          aws iam detach-role-policy \
+            --role-name mobile-accenture-dev-ai-proxy-lambda-role \
+            --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole \
+            2>/dev/null || true
+          
+          aws iam delete-role \
+            --role-name mobile-accenture-dev-ai-proxy-lambda-role \
+            2>/dev/null || echo "IAM Role no existe"
+          
+          # Eliminar Log Groups
+          aws logs delete-log-group \
+            --log-group-name /aws/lambda/mobile-accenture-dev-ai-proxy \
+            --region ${{ env.AWS_REGION }} \
+            2>/dev/null || echo "Lambda Log Group no existe"
+          
+          aws logs delete-log-group \
+            --log-group-name /aws/apigateway/mobile-accenture-dev-ai-proxy \
+            --region ${{ env.AWS_REGION }} \
+            2>/dev/null || echo "API Gateway Log Group no existe"
+          
+          # Eliminar API Gateway (si existe anterior)
+          APIS=$(aws apigatewayv2 get-apis --region ${{ env.AWS_REGION }} --query "Items[?Name=='mobile-accenture-dev-ai-proxy-api'].ApiId" --output text)
+          for API_ID in $APIS; do
+            echo "Eliminando API Gateway: $API_ID"
+            aws apigatewayv2 delete-api --api-id $API_ID --region ${{ env.AWS_REGION }} || true
+          done
+          
+          echo "Recursos existentes eliminados, esperando 10 segundos..."
+          sleep 10
       
       - name: Terraform Apply
         id: deploy
