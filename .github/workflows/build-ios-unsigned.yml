@@ -1,0 +1,193 @@
+name: Build iOS IPA (Sin Firma)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Permite ejecutar manualmente
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout del código
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install Ionic CLI and Cordova
+      run: |
+        npm install -g @ionic/cli
+        npm install -g cordova
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Set environment variables
+      run: |
+        export FIREBASE_API_KEY="${{ secrets.FIREBASE_API_KEY }}"
+        export FIREBASE_AUTH_DOMAIN="${{ secrets.FIREBASE_AUTH_DOMAIN }}"
+        export FIREBASE_PROJECT_ID="${{ secrets.FIREBASE_PROJECT_ID }}"
+        export FIREBASE_STORAGE_BUCKET="${{ secrets.FIREBASE_STORAGE_BUCKET }}"
+        export FIREBASE_MESSAGING_SENDER_ID="${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}"
+        export FIREBASE_APP_ID="${{ secrets.FIREBASE_APP_ID }}"
+        export AI_PROXY_URL="${{ secrets.AI_PROXY_URL }}"
+        export NODE_ENV=production
+        npm run config:env:prod
+    
+    - name: Build aplicación web
+      run: ionic build --prod
+    
+    - name: Añadir plataforma iOS
+      run: ionic cordova platform add ios --no-interactive
+    
+    - name: Compilar Xcode sin firma
+      run: |
+        cd platforms/ios
+        echo "🔨 Compilando proyecto iOS sin firma de código..."
+        xcodebuild -workspace *.xcworkspace \
+                   -scheme App \
+                   -configuration Release \
+                   -sdk iphoneos \
+                   CODE_SIGNING_ALLOWED=NO \
+                   CODE_SIGNING_REQUIRED=NO \
+                   ENTITLEMENTS_REQUIRED=NO \
+                   clean build
+    
+    - name: Verificar .app generado
+      run: |
+        echo "📱 Verificando archivo .app generado:"
+        find platforms/ios/build/Release-iphoneos -name "*.app" -type d
+        ls -lh platforms/ios/build/Release-iphoneos/
+    
+    - name: Empaquetar en IPA
+      run: |
+        echo "📦 Creando estructura IPA..."
+        mkdir -p build/Payload
+        
+        # Copiar .app a Payload
+        APP_NAME=$(find platforms/ios/build/Release-iphoneos -name "*.app" -type d -maxdepth 1 | head -n 1)
+        if [ -z "$APP_NAME" ]; then
+          echo "❌ Error: No se encontró archivo .app"
+          exit 1
+        fi
+        
+        echo "📱 Copiando $APP_NAME"
+        cp -r "$APP_NAME" build/Payload/
+        
+        # Crear IPA
+        cd build
+        IPA_NAME="TodoApp_Unsigned_iOS.ipa"
+        zip -r "$IPA_NAME" Payload
+        
+        echo "✅ IPA creado: $IPA_NAME"
+        echo "📊 Tamaño: $(du -h "$IPA_NAME" | cut -f1)"
+    
+    - name: Subir IPA como artefacto
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-app-unsigned
+        path: build/TodoApp_Unsigned_iOS.ipa
+        retention-days: 30
+    
+    - name: Crear documentación para evaluadores
+      run: |
+        cat > build/INSTRUCCIONES_IPA.md << 'EOF'
+        # Instrucciones para el IPA sin firma
+        
+        ## ⚠️ ¿Por qué no está firmado?
+        
+        Este IPA no incluye firma de código porque requiere:
+        - Cuenta de Apple Developer ($99/año)
+        - Certificados de distribución
+        - UUIDs de dispositivos específicos
+        
+        ## ✅ Contenido del IPA
+        
+        El IPA incluye:
+        - ✅ Código compilado de la aplicación
+        - ✅ Assets (imágenes, iconos, splash screens)
+        - ✅ Configuración de la app
+        - ✅ Todos los recursos necesarios
+        - ❌ Firma de código (requiere cuenta Apple Developer)
+        
+        ## 🔧 ¿Cómo instalar el IPA?
+        
+        ### Opción 1: Re-firmar con sus propios certificados
+        
+        Si tienen cuenta Apple Developer, pueden re-firmar:
+        ```bash
+        # Usando herramientas de firma
+        ios-app-signer --input TodoApp_Unsigned_iOS.ipa --output TodoApp_Signed.ipa
+        ```
+        
+        ### Opción 2: Instalar desde código fuente
+        
+        El código fuente completo está en el repositorio:
+        ```bash
+        git clone https://github.com/johssalinas/mobile-accenture
+        cd mobile-accenture
+        npm install
+        ionic cordova build ios --prod
+        # Abrir en Xcode y firmar con su cuenta
+        open platforms/ios/*.xcworkspace
+        ```
+        
+        ### Opción 3: Verificar contenido del IPA
+        
+        ```bash
+        # Extraer contenido
+        unzip TodoApp_Unsigned_iOS.ipa
+        cd Payload/*.app
+        
+        # Revisar recursos, assets, configuración
+        ls -la
+        ```
+        
+        ## 📋 Información técnica
+        
+        - **Min iOS**: 13.0
+        - **Target iOS**: 17.0
+        - **Arquitectura**: arm64 (iPhone universal)
+        - **Configuración**: Release
+        - **Framework**: Ionic + Angular + Cordova
+        
+        ## 🔗 Recursos
+        
+        - [Repositorio](https://github.com/johssalinas/mobile-accenture)
+        - [Documentación completa](https://github.com/johssalinas/mobile-accenture/blob/main/docs/GITHUB_ACTIONS_ANDROID.md)
+        EOF
+        
+        echo "✅ Documentación creada"
+    
+    - name: Subir documentación
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-instrucciones
+        path: build/INSTRUCCIONES_IPA.md
+        retention-days: 30
+    
+    - name: Mostrar resumen
+      run: |
+        echo ""
+        echo "✅ IPA generado exitosamente (SIN FIRMA)"
+        echo ""
+        echo "📱 Archivo: TodoApp_Unsigned_iOS.ipa"
+        echo "📊 Tamaño: $(du -h build/TodoApp_Unsigned_iOS.ipa | cut -f1)"
+        echo ""
+        echo "⚠️  IMPORTANTE:"
+        echo "   - Este IPA NO está firmado"
+        echo "   - NO se puede instalar directamente en dispositivos iOS"
+        echo "   - Requiere re-firma con certificados de Apple Developer"
+        echo "   - Demuestra que el código iOS compila correctamente"
+        echo ""
+        echo "🔗 Descarga desde:"
+        echo "   Actions → Este workflow → Artifacts → ios-app-unsigned"
+        echo ""
+        echo "📖 Lee INSTRUCCIONES_IPA.md para más información"

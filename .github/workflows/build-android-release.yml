@@ -1,0 +1,135 @@
+name: Build Android APK Release (Firmado)
+
+on:
+  push:
+    tags:
+      - 'v*'  # Se ejecuta cuando creas un tag como v1.0.0
+  workflow_dispatch:  # O ejecutar manualmente
+
+jobs:
+  build-android-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout del código
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+    
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+    
+    - name: Install Ionic CLI and Cordova
+      run: |
+        npm install -g @ionic/cli
+        npm install -g cordova
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Set environment variables
+      run: |
+        export FIREBASE_API_KEY="${{ secrets.FIREBASE_API_KEY }}"
+        export FIREBASE_AUTH_DOMAIN="${{ secrets.FIREBASE_AUTH_DOMAIN }}"
+        export FIREBASE_PROJECT_ID="${{ secrets.FIREBASE_PROJECT_ID }}"
+        export FIREBASE_STORAGE_BUCKET="${{ secrets.FIREBASE_STORAGE_BUCKET }}"
+        export FIREBASE_MESSAGING_SENDER_ID="${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}"
+        export FIREBASE_APP_ID="${{ secrets.FIREBASE_APP_ID }}"
+        export AI_PROXY_URL="${{ secrets.AI_PROXY_URL }}"
+        export NODE_ENV=production
+        npm run config:env:prod
+    
+    - name: Build aplicación web
+      run: ionic build --prod
+    
+    - name: Añadir plataforma Android
+      run: ionic cordova platform add android --no-interactive
+    
+    - name: Crear keystore desde secret
+      run: |
+        echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android-release-key.keystore
+    
+    - name: Configurar firma en build.gradle
+      run: |
+        cat >> platforms/android/app/build.gradle << 'EOF'
+        
+        android {
+            signingConfigs {
+                release {
+                    storeFile file("../../../android-release-key.keystore")
+                    storePassword "${{ secrets.KEYSTORE_PASSWORD }}"
+                    keyAlias "${{ secrets.KEY_ALIAS }}"
+                    keyPassword "${{ secrets.KEY_PASSWORD }}"
+                }
+            }
+            buildTypes {
+                release {
+                    signingConfig signingConfigs.release
+                }
+            }
+        }
+        EOF
+    
+    - name: Build APK firmado (release)
+      run: ionic cordova build android --prod --release --no-interactive
+    
+    - name: Build AAB firmado (para Play Store)
+      run: |
+        cd platforms/android
+        ./gradlew bundleRelease
+    
+    - name: Verificar archivos generados
+      run: |
+        echo "📱 APK Release generado:"
+        find platforms/android/app/build/outputs/apk -name "*.apk" -type f
+        echo ""
+        echo "📦 AAB generado:"
+        find platforms/android/app/build/outputs/bundle -name "*.aab" -type f
+    
+    - name: Renombrar archivos
+      run: |
+        VERSION="${{ github.ref_name }}"
+        cd platforms/android/app/build/outputs/apk/release
+        mv app-release.apk TodoApp-${VERSION}.apk
+        cd ../../bundle/release
+        mv app-release.aab TodoApp-${VERSION}.aab
+    
+    - name: Subir APK como artefacto
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-apk-release-${{ github.ref_name }}
+        path: platforms/android/app/build/outputs/apk/release/TodoApp-*.apk
+        retention-days: 90
+    
+    - name: Subir AAB como artefacto
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-aab-release-${{ github.ref_name }}
+        path: platforms/android/app/build/outputs/bundle/release/TodoApp-*.aab
+        retention-days: 90
+    
+    - name: Crear Release en GitHub
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          platforms/android/app/build/outputs/apk/release/TodoApp-*.apk
+          platforms/android/app/build/outputs/bundle/release/TodoApp-*.aab
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Limpiar keystore
+      if: always()
+      run: rm -f android-release-key.keystore
