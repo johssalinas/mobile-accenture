@@ -1,0 +1,27 @@
+{
+  "name": "ai-proxy-lambda",
+  "version": "1.0.0",
+  "description": "AWS Lambda proxy para APIs de IA - mobile-accenture",
+  "main": "dist/handler.js",
+  "scripts": {
+    "build": "tsc",
+    "test:local": "npm run build && node test-local.js",
+    "package": "npm run build && powershell Compress-Archive -Path dist/* -DestinationPath function.zip -Force",
+    "package:unix": "npm run build && cd dist && zip -r ../function.zip .",
+    "deploy": "npm run package && terraform -chdir=../terraform apply",
+    "clean": "rm -rf dist function.zip"
+  },
+  "dependencies": {
+    "ai": "^3.4.0",
+    "@ai-sdk/openai": "^0.0.66"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.130",
+    "dotenv": "^16.3.1",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.x"
+  }
+}
