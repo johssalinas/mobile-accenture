@@ -42,10 +42,18 @@ jobs:
         npm run config:env:prod
     
     - name: Build aplicación web
-      run: ionic build --prod
+      run: npm run build:prod
     
     - name: Añadir plataforma iOS
-      run: ionic cordova platform add ios --no-interactive
+      run: npx cordova platform add ios --no-interactive
+    
+    - name: Configurar deployment target iOS 12.0
+      run: |
+        cd platforms/ios
+        # Actualizar deployment target en el proyecto principal
+        sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 11.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' App.xcodeproj/project.pbxproj
+        # Actualizar en CordovaLib
+        sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 11.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' CordovaLib/CordovaLib.xcodeproj/project.pbxproj
     
     - name: Compilar Xcode sin firma
       run: |
@@ -58,6 +66,8 @@ jobs:
                    CODE_SIGNING_ALLOWED=NO \
                    CODE_SIGNING_REQUIRED=NO \
                    ENTITLEMENTS_REQUIRED=NO \
+                   IPHONEOS_DEPLOYMENT_TARGET=12.0 \
+                   SWIFT_OPTIMIZATION_LEVEL=-Onone \
                    clean build
     
     - name: Verificar .app generado

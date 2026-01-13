@@ -51,13 +51,20 @@ jobs:
         npm run config:env:prod
     
     - name: Build aplicación web
-      run: ionic build --prod
+      run: npm run build:prod
     
     - name: Añadir plataforma Android
-      run: ionic cordova platform add android --no-interactive
+      run: |
+        npx cordova platform add android --no-interactive
     
-    - name: Build APK sin firma (debug)
-      run: ionic cordova build android --no-interactive
+    - name: Preparar recursos para Android
+      run: npx cordova prepare android
+    
+    - name: Build APK con Gradle (debug)
+      run: |
+        cd platforms/android
+        chmod +x gradlew
+        ./gradlew assembleDebug
     
     - name: Verificar APK generado
       run: |
