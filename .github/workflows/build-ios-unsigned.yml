@@ -47,6 +47,20 @@ jobs:
     - name: Añadir plataforma iOS
       run: npx cordova platform add ios --no-interactive
     
+    - name: Configurar deployment target
+      run: |
+        cd platforms/ios
+        echo "🔧 Configurando iOS deployment target a 13.0..."
+        
+        # Actualizar en el archivo .pbxproj
+        sed -i.bak 's/IPHONEOS_DEPLOYMENT_TARGET = 11.0;/IPHONEOS_DEPLOYMENT_TARGET = 13.0;/g' App.xcodeproj/project.pbxproj
+        sed -i.bak 's/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/IPHONEOS_DEPLOYMENT_TARGET = 13.0;/g' App.xcodeproj/project.pbxproj
+        
+        # Verificar cambios
+        grep "IPHONEOS_DEPLOYMENT_TARGET" App.xcodeproj/project.pbxproj | head -5
+        
+        echo "✅ Deployment target actualizado"
+    
     - name: Compilar para iOS Simulator
       run: |
         cd platforms/ios
