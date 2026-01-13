@@ -1,8 +1,9 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { generateText } from 'ai';
 
 /**
  * Este Lambda actúa como proxy seguro entre el frontend y las APIs de IA.
+ * Usa API Gateway HTTP API (v2 format)
  */
 
 interface AISuggestionRequest {
@@ -101,16 +102,15 @@ Responde SOLO con el JSON:`;
  * Handler principal del Lambda
  */
 export async function handler(
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> {
+  event: APIGatewayProxyEventV2
+): Promise<APIGatewayProxyResultV2> {
   console.log('Lambda invoked:', { 
-    path: event.path, 
-    resource: event.resource,
-    method: event.httpMethod 
+    path: event.rawPath,
+    method: event.requestContext.http.method
   });
 
   // Health check endpoint
-  if (event.path?.includes('/health') || event.resource?.includes('/health')) {
+  if (event.rawPath?.includes('/health')) {
     return healthCheck();
   }
 
@@ -123,7 +123,7 @@ export async function handler(
   };
 
   // Handle preflight
-  if (event.httpMethod === 'OPTIONS') {
+  if (event.requestContext.http.method === 'OPTIONS') {
     return {
       statusCode: 200,
       headers,
@@ -132,7 +132,7 @@ export async function handler(
   }
 
   // Solo POST permitido
-  if (event.httpMethod !== 'POST') {
+  if (event.requestContext.http.method !== 'POST') {
     return {
       statusCode: 405,
       headers,
@@ -234,7 +234,7 @@ export async function handler(
 /**
  * Health check endpoint
  */
-export async function healthCheck(): Promise<APIGatewayProxyResult> {
+export async function healthCheck(): Promise<APIGatewayProxyResultV2> {
   const isConfigured = !!process.env.OPENAI_API_KEY;
 
   return {
