@@ -12,6 +12,10 @@ $RECYCLE.BIN/
 *.log
 log.txt
 
+# Environment variables (contienen secrets)
+.env
+.env.local
+.env.*.local
 
 /.sourcemaps
 /.versions
@@ -75,3 +79,10 @@ Thumbs.db
 # Environment files with sensitive data
 src/environments/environment.ts
 src/environments/environment.prod.ts
+
+# Android signing files (NUNCA subir estos archivos)
+*.keystore
+*.jks
+android/key.properties
+android-release-key.keystore
+keystore-base64.txt
