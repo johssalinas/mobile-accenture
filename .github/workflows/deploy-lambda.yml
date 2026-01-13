@@ -184,6 +184,16 @@ jobs:
         working-directory: ./terraform
         run: terraform init
       
+      - name: Destroy existing resources (dev only)
+        if: vars.ENVIRONMENT == 'dev' || github.event.inputs.environment == 'dev'
+        working-directory: ./terraform
+        run: |
+          terraform destroy -auto-approve \
+            -var="openai_api_key=${{ secrets.OPENAI_API_KEY }}" \
+            -var="default_ai_model=${{ vars.DEFAULT_AI_MODEL || 'gpt-3.5-turbo' }}" \
+            -var="environment=${{ github.event.inputs.environment || 'dev' }}" \
+            || echo "No resources to destroy"
+      
       - name: Terraform Apply
         id: deploy
         working-directory: ./terraform
