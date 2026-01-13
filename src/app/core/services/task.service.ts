@@ -83,8 +83,8 @@ export class TaskService {
         
         this.tasksSignal.set(parsedTasks);
       }
-    } catch (error) {
-      console.error('Error al cargar tareas desde localStorage:', error);
+    } catch (_error) {
+      // Ignore localStorage read issues to keep app responsive
     }
   }
 
@@ -94,8 +94,8 @@ export class TaskService {
   private saveToLocalStorage(tasks: Task[]): void {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tasks));
-    } catch (error) {
-      console.error('Error al guardar tareas en localStorage:', error);
+    } catch (_error) {
+      // Ignore localStorage write issues to avoid breaking UX
     }
   }
 
@@ -111,8 +111,7 @@ export class TaskService {
         this.saveToLocalStorage(tasks);
         this.loadingSignal.set(false);
       },
-      error: (error) => {
-        console.error('Error al cargar tareas desde Firestore:', error);
+      error: () => {
         this.loadingSignal.set(false);
       }
     });
@@ -197,7 +196,6 @@ export class TaskService {
 
       return taskWithRealId;
     } catch (error) {
-      console.error('Error al crear tarea en Firestore:', error);
       // Mantener la tarea local aunque falle Firebase
       return newTask;
     }
@@ -249,8 +247,6 @@ export class TaskService {
 
         await updateDoc(taskRef, updateData);
       } catch (error) {
-        console.error('Error al actualizar tarea en Firestore:', error);
-        
         // Rollback: revertir al estado anterior
         this.tasksSignal.set(previousTasks);
         this.saveToLocalStorage(previousTasks);
@@ -318,8 +314,6 @@ export class TaskService {
         const taskRef = doc(this.firestore, 'tasks', id);
         await deleteDoc(taskRef);
       } catch (error) {
-        console.error('Error al eliminar tarea de Firestore:', error);
-        
         // Rollback: revertir al estado anterior
         this.tasksSignal.set(previousTasks);
         this.saveToLocalStorage(previousTasks);

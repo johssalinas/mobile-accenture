@@ -75,7 +75,13 @@ jobs:
         cd platforms/ios
         echo "🔨 Compilando proyecto iOS sin firma de código..."
         
-        # Método 1: Intentar con configuración mínima
+        # Limpiar builds anteriores
+        rm -rf build/ 2>/dev/null || true
+        
+        # Método simplificado: compilar solo para generar .app
+        echo "📋 Intentando compilación básica..."
+        set -e  # Fail on any error
+        
         xcodebuild -workspace *.xcworkspace \
                    -scheme App \
                    -configuration Release \
@@ -84,46 +90,49 @@ jobs:
                    CODE_SIGNING_REQUIRED=NO \
                    CODE_SIGNING_ALLOWED=NO \
                    PROVISIONING_PROFILE="" \
-                   build \
-        || echo "Build method 1 failed, trying alternative..."
+                   DEVELOPMENT_TEAM="" \
+                   build
         
-        # Método 2: Si falla, intentar con xcodebuild básico
-        if [ $? -ne 0 ]; then
-          echo "🔄 Intentando método alternativo..."
-          xcodebuild -project *.xcodeproj \
-                     -target App \
-                     -configuration Release \
-                     CODE_SIGN_IDENTITY="" \
-                     CODE_SIGNING_REQUIRED=NO \
-                     build || echo "Build method 2 also failed"
-        fi
+        echo "✅ Compilación completada"
     
     - name: Verificar .app generado
       run: |
         echo "📱 Verificando archivos generados:"
+        cd platforms/ios
         
-        # Buscar en múltiples ubicaciones posibles
-        echo "Buscando en build/Release-iphoneos..."
-        find platforms/ios -name "*.app" -type d 2>/dev/null | head -5
+        # Buscar todos los archivos .app
+        echo "🔍 Buscando archivos .app..."
+        find . -name "*.app" -type d | while read app; do
+          echo "  Encontrado: $app"
+          ls -la "$app" | head -5
+        done
         
+        # Verificar estructura de build
         echo ""
-        echo "Contenido del directorio iOS:"
-        find platforms/ios -name "build" -type d | head -3
+        echo "📁 Estructura de directorios build:"
+        find . -name "build" -type d | while read dir; do
+          echo "  Build dir: $dir"
+          ls -la "$dir" 2>/dev/null | head -3
+        done
         
-        echo ""
-        echo "Estructura de productos generados:"
-        find platforms/ios -path "*/Products/*" -name "*.app" -type d 2>/dev/null | head -3
-    
-    - name: Empaquetar en IPA
-      run: |
-        echo "📦 Creando estructura IPA..."
-        mkdir -p build/Payload
+        # Verificar si hay algún producto generado
+        cd platforms/ios
         
-        # Buscar .app en múltiples ubicaciones
-        APP_NAME=""
+        # Buscar .app (ahora sabemos que existe al menos uno)
+        APP_NAME=$(find . -name "*.app" -type d | head -n 1)
         
-        # Intentar encontrar en build/Release-iphoneos
         if [ -z "$APP_NAME" ]; then
+          echo "❌ Error crítico: .app desapareció después de la verificación"
+          exit 1
+        fi
+        
+        # Volver a la raíz y copiar
+        cd ../..
+        echo "📱 Copiando platforms/ios/$APP_NAME"
+        cp -r "platforms/ios/$APP_NAME" build/Payload/
+        
+        # Verificar que se copió correctamente
+        ls -laE" ]; then
           APP_NAME=$(find platforms/ios -path "*/Release-iphoneos/*.app" -type d | head -n 1)
         fi
         

@@ -67,27 +67,16 @@ export class AISuggestionService {
   private http = inject(HttpClient);
   private config = inject(AI_PROXY_CONFIG, { optional: true });
 
-  constructor() {
-    if (this.config) {
-      console.log('✅ AI Proxy configurado:', this.config.proxyUrl);
-      console.log('   - Use Mock:', this.config.useMock);
-    } else {
-      console.log('⚠️ AI Proxy NO configurado, usando mock local');
-    }
-  }
-
   /**
    * Sugiere icono y colores para una categoría usando el proxy Lambda
    */
   async suggestCategoryStyle(categoryName: string): Promise<AICategorySuggestion> {
     // Usar mock si está configurado explícitamente
     if (!this.config || this.config.useMock) {
-      console.log('🔧 Usando sugerencia local (mock)');
       return this.getMockSuggestion(categoryName);
     }
 
     try {
-      console.log('🌐 Llamando al backend Lambda:', this.config.proxyUrl);
       const timeout = this.config.timeout || 15000;
 
       // Llamar al proxy Lambda con timeout
@@ -98,9 +87,7 @@ export class AISuggestionService {
 
       return this.parseProxyResponse(result, categoryName);
 
-    } catch (error: any) {
-      console.error('❌ Error calling AI proxy:', error);
-      console.log('⚠️ Fallback a sugerencia local');
+    } catch (_error: any) {
       // Fallback a mock
       return this.getMockSuggestion(categoryName);
     }
@@ -118,14 +105,10 @@ export class AISuggestionService {
       categoryName: categoryName.trim()
     };
 
-    console.log('📡 POST', this.config.proxyUrl, request);
-
     // HTTP POST al Lambda proxy
     const response = await firstValueFrom(
       this.http.post<AIProxyResponse>(this.config.proxyUrl, request)
     );
-
-    console.log('✅ Respuesta del backend:', response);
     return response;
   }
 
@@ -147,8 +130,6 @@ export class AISuggestionService {
       // Generar backgroundColor más claro
       const backgroundColor = this.lightenColor(color);
 
-      console.log('✨ Sugerencia procesada:', { icon, color, backgroundColor });
-
       return {
         icon,
         color,
@@ -156,8 +137,7 @@ export class AISuggestionService {
         reasoning: `Sugerido por ${response.provider || 'AI'} con ${Math.round((response.confidence || 0.95) * 100)}% de confianza`
       };
 
-    } catch (error) {
-      console.error('❌ Error parsing proxy response:', error);
+    } catch (_error) {
       return this.getMockSuggestion(categoryName);
     }
   }

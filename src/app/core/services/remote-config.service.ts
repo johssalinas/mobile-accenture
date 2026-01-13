@@ -1,5 +1,10 @@
-import { Injectable, inject } from '@angular/core';
-import { RemoteConfig, getRemoteConfig, fetchAndActivate, getValue, getBoolean } from '@angular/fire/remote-config';
+import { Injectable, inject, runInInjectionContext, Injector } from '@angular/core';
+import { 
+  RemoteConfig, 
+  fetchAndActivate, 
+  getBoolean, 
+  getString 
+} from '@angular/fire/remote-config';
 
 /**
  * Servicio para gestionar Firebase Remote Config
@@ -9,52 +14,30 @@ import { RemoteConfig, getRemoteConfig, fetchAndActivate, getValue, getBoolean }
   providedIn: 'root'
 })
 export class RemoteConfigService {
-  private remoteConfig: RemoteConfig | null = null;
-  private initialized = false;
-  private initPromise: Promise<void> | null = null;
+  private remoteConfig = inject(RemoteConfig);
+  private injector = inject(Injector);
 
   constructor() {
-    // No inicializar en el constructor para evitar bucles
+    // Configurar valores por defecto inmediatamente
+    this.remoteConfig.settings = {
+      // Para desarrollo: siempre refetch (sin cache local del SDK)
+      minimumFetchIntervalMillis: 0,
+      fetchTimeoutMillis: 60000 // 1 minuto
+    };
+
+    this.remoteConfig.defaultConfig = {
+      'ai_suggestions_enabled': true,
+      'ai_suggestions_model': 'mock'
+    };
   }
 
   /**
-   * Inicializa Remote Config con valores por defecto (lazy initialization)
+   * Realiza fetch & activate siempre, dentro del contexto de inyección
    */
-  private async initializeRemoteConfig(): Promise<void> {
-    // Evitar múltiples inicializaciones
-    if (this.initialized || this.initPromise) {
-      return this.initPromise || Promise.resolve();
-    }
-
-    this.initPromise = (async () => {
-      try {
-        this.remoteConfig = getRemoteConfig();
-        
-        // Configuración de Remote Config
-        this.remoteConfig.settings = {
-          minimumFetchIntervalMillis: 3600000, // 1 hora en producción
-          fetchTimeoutMillis: 60000 // 1 minuto
-        };
-
-        // Valores por defecto
-        this.remoteConfig.defaultConfig = {
-          'ai_suggestions_enabled': true,
-          'ai_suggestions_model': 'mock'
-        };
-
-        // Fetch y activar valores remotos (solo la primera vez)
-        await fetchAndActivate(this.remoteConfig);
-        this.initialized = true;
-        
-        console.log('✅ Remote Config inicializado correctamente');
-      } catch (error) {
-        console.error('❌ Error inicializando Remote Config:', error);
-        this.initialized = false;
-        this.initPromise = null;
-      }
-    })();
-
-    return this.initPromise;
+  private async fetchAndActivateContext(): Promise<void> {
+    return runInInjectionContext(this.injector, async () => {
+      await fetchAndActivate(this.remoteConfig);
+    });
   }
 
   /**
@@ -62,18 +45,14 @@ export class RemoteConfigService {
    * @returns true si las sugerencias de IA están habilitadas
    */
   async isAISuggestionsEnabled(): Promise<boolean> {
-    await this.initializeRemoteConfig();
-    
-    if (!this.initialized || !this.remoteConfig) {
-      return true;
-    }
-
-    try {
-      return getBoolean(this.remoteConfig, 'ai_suggestions_enabled');
-    } catch (error) {
-      console.error('Error obteniendo feature flag ai_suggestions_enabled:', error);
-      return true;
-    }
+    await this.fetchAndActivateContext();
+    return runInInjectionContext(this.injector, () => {
+      try {
+        return getBoolean(this.remoteConfig, 'ai_suggestions_enabled');
+      } catch (_error) {
+        return true;
+      }
+    });
   }
 
   /**
@@ -81,52 +60,28 @@ export class RemoteConfigService {
    * @returns Nombre del modelo de IA
    */
   async getAIModel(): Promise<string> {
-    await this.initializeRemoteConfig();
-    
-    if (!this.initialized || !this.remoteConfig) {
-      return 'mock';
-    }
-
-    try {
-      const value = getValue(this.remoteConfig, 'ai_suggestions_model');
-      return value.asString();
-    } catch (error) {
-      console.error('Error obteniendo ai_suggestions_model:', error);
-      return 'mock';
-    }
+    await this.fetchAndActivateContext();
+    return runInInjectionContext(this.injector, () => {
+      try {
+        return getString(this.remoteConfig, 'ai_suggestions_model');
+      } catch (_error) {
+        return 'mock';
+      }
+    });
   }
 
   /**
    * Fuerza una actualización de Remote Config
-   * Útil para testing o refresh manual
    */
   async forceRefresh(): Promise<void> {
-    if (!this.remoteConfig) {
-      await this.initializeRemoteConfig();
-      return;
-    }
-
-    try {
-      await fetchAndActivate(this.remoteConfig);
-      console.log('✅ Remote Config actualizado manualmente');
-    } catch (error) {
-      console.error('❌ Error actualizando Remote Config:', error);
-    }
+    return this.fetchAndActivateContext();
   }
 
   /**
-   * Obtiene todos los valores de Remote Config (útil para debugging)
+   * Obtiene todos los valores de Remote Config
    */
   async getAllValues(): Promise<Record<string, any>> {
-    await this.initializeRemoteConfig();
-    
-    if (!this.initialized || !this.remoteConfig) {
-      return {
-        'ai_suggestions_enabled': true,
-        'ai_suggestions_model': 'mock'
-      };
-    }
-
+    await this.fetchAndActivateContext();
     return {
       'ai_suggestions_enabled': await this.isAISuggestionsEnabled(),
       'ai_suggestions_model': await this.getAIModel()

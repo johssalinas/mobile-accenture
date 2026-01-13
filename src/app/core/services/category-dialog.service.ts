@@ -63,7 +63,6 @@ export class CategoryDialogService {
       
       // Si las sugerencias de IA están deshabilitadas, usar valores aleatorios directamente
       if (!aiEnabled) {
-        console.log('🚫 Sugerencias de IA deshabilitadas por Remote Config');
         return this.createCategoryWithRandomStyle(categoryName);
       }
 
@@ -72,24 +71,15 @@ export class CategoryDialogService {
         const suggestion = await this.aiService.suggestCategoryStyle(categoryName);
         
         // Aplicar la sugerencia directamente sin confirmación
-        console.log('✨ Sugerencia de IA aplicada:', suggestion);
-        console.log('   - Icono:', suggestion.icon);
-        console.log('   - Color:', suggestion.color);
-        console.log('   - Background:', suggestion.backgroundColor);
-        
         const result = {
           name: categoryName,
           color: suggestion.color,
           backgroundColor: suggestion.backgroundColor,
           icon: suggestion.icon
         };
-        
-        console.log('📦 Retornando categoría:', result);
         return result;
         
-      } catch (error) {
-        console.error('Error getting AI suggestion:', error);
-        
+      } catch (_error) {
         // Fallback a colores e icono aleatorios
         return this.createCategoryWithRandomStyle(categoryName);
       }

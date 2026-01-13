@@ -114,11 +114,6 @@ Responde SOLO el JSON:`;
 export async function handler(
   event: APIGatewayProxyEventV2
 ): Promise<APIGatewayProxyResultV2> {
-  console.log('Lambda invoked:', { 
-    path: event.rawPath,
-    method: event.requestContext.http.method
-  });
-
   // Health check endpoint
   if (event.rawPath?.includes('/health')) {
     return healthCheck();
@@ -154,11 +149,6 @@ export async function handler(
   }
 
   try {
-    // Debug: log el body tal como llega
-    console.log('Raw body type:', typeof event.body);
-    console.log('Raw body:', event.body);
-    console.log('Is base64:', event.isBase64Encoded);
-    
     // Parsear body
     if (!event.body) {
       throw new Error('Missing request body');
@@ -204,18 +194,11 @@ export async function handler(
       };
     }
 
-    console.log('Generating suggestion:', { 
-      categoryName: request.categoryName,
-      model: modelString 
-    });
-
     // Generar sugerencia
     const suggestion = await generateAISuggestion(
       request.categoryName.trim(),
       modelString
     );
-
-    console.log('Suggestion generated:', suggestion);
 
     // Respuesta exitosa
     return {
@@ -225,8 +208,6 @@ export async function handler(
     };
 
   } catch (error: any) {
-    console.error('Lambda error:', error);
-
     // Determinar código de error
     let statusCode = 500;
     let errorType = 'Internal Server Error';

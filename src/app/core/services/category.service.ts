@@ -83,8 +83,8 @@ export class CategoryService {
         this.categoriesSignal.set(parsedCategories);
         this.loadingSignal.set(false);
       }
-    } catch (error) {
-      console.error('Error al cargar categorías desde localStorage:', error);
+    } catch (_error) {
+      // Ignore localStorage read issues to keep app responsive
     }
   }
 
@@ -94,8 +94,8 @@ export class CategoryService {
   private saveToLocalStorage(categories: Category[]): void {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(categories));
-    } catch (error) {
-      console.error('Error al guardar categorías en localStorage:', error);
+    } catch (_error) {
+      // Ignore localStorage write issues to avoid breaking UX
     }
   }
 
@@ -104,19 +104,15 @@ export class CategoryService {
    * Se ejecuta en segundo plano después de cargar localStorage
    */
   private loadCategories(): void {
-    console.log('🔄 Iniciando suscripción a Firestore...');
     this.getCategories$().subscribe({
       next: (categories) => {
-        console.log('📥 Datos recibidos de Firestore:', categories);
         // Actualizar estado desde Firestore (source of truth)
         this.categoriesSignal.set(categories);
         // Sincronizar con localStorage para cache offline
         this.saveToLocalStorage(categories);
         this.loadingSignal.set(false);
-        console.log('✅ Categorías sincronizadas:', categories.length);
       },
-      error: (error) => {
-        console.error('❌ Error al cargar categorías desde Firestore:', error);
+      error: () => {
         // Si falla Firebase, mantenemos lo que hay en localStorage
         this.loadingSignal.set(false);
       }
@@ -127,10 +123,8 @@ export class CategoryService {
    * Observable que escucha cambios en tiempo real de las categorías
    */
   getCategories$(): Observable<Category[]> {
-    console.log('📡 Configurando observable de Firestore...');
     return collectionData(this.categoriesCollection, { idField: 'id' }).pipe(
       map((docs: any[]) => {
-        console.log('🔍 Documentos raw de Firestore:', docs);
         const mapped = docs.map(doc => ({
           id: doc.id,
           name: doc.name,
@@ -140,7 +134,6 @@ export class CategoryService {
           createdAt: doc.createdAt?.toDate() || new Date(),
           updatedAt: doc.updatedAt?.toDate() || new Date()
         }));
-        console.log('🗺️ Documentos mapeados:', mapped);
         return mapped;
       })
     );
@@ -181,8 +174,6 @@ export class CategoryService {
 
       // Guardar en Firebase - el listener en tiempo real actualizará el estado automáticamente
       const docRef = await addDoc(this.categoriesCollection, categoryData);
-      
-      console.log('✅ Categoría creada en Firestore:', docRef.id);
 
       // Retornar la categoría con el ID real
       const newCategory: Category = {
@@ -197,7 +188,6 @@ export class CategoryService {
 
       return newCategory;
     } catch (error) {
-      console.error('Error al crear categoría en Firestore:', error);
       throw error;
     }
   }
@@ -247,8 +237,6 @@ export class CategoryService {
 
         await updateDoc(categoryRef, updateData);
       } catch (error) {
-        console.error('Error al actualizar categoría en Firestore:', error);
-        
         // Rollback: Revertir al estado anterior
         this.categoriesSignal.set(previousCategories);
         this.saveToLocalStorage(previousCategories);
@@ -298,8 +286,6 @@ export class CategoryService {
         const categoryRef = doc(this.firestore, 'categories', id);
         await deleteDoc(categoryRef);
       } catch (error) {
-        console.error('Error al eliminar categoría en Firestore:', error);
-        
         // Rollback: Restaurar la categoría eliminada
         this.categoriesSignal.set(previousCategories);
         this.saveToLocalStorage(previousCategories);
@@ -323,8 +309,8 @@ export class CategoryService {
         const filteredTasks = tasks.filter((task: any) => task.categoryId !== categoryId);
         localStorage.setItem('tasks', JSON.stringify(filteredTasks));
       }
-    } catch (error) {
-      console.error('Error al eliminar tareas del localStorage:', error);
+    } catch (_error) {
+      // Ignore localStorage issues while cleaning up related tasks
     }
   }
 
@@ -348,10 +334,7 @@ export class CategoryService {
       );
       
       await Promise.all(deletePromises);
-      
-      console.log(`Se eliminaron ${querySnapshot.size} tareas de la categoría ${categoryId}`);
     } catch (error) {
-      console.error('Error al eliminar tareas relacionadas de Firestore:', error);
       throw error;
     }
   }
