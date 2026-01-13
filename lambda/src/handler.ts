@@ -103,7 +103,16 @@ Responde SOLO con el JSON:`;
 export async function handler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
-  console.log('Lambda invoked:', { path: event.path, method: event.httpMethod });
+  console.log('Lambda invoked:', { 
+    path: event.path, 
+    resource: event.resource,
+    method: event.httpMethod 
+  });
+
+  // Health check endpoint
+  if (event.path?.includes('/health') || event.resource?.includes('/health')) {
+    return healthCheck();
+  }
 
   // CORS headers
   const headers = {
