@@ -79,29 +79,29 @@ export interface CategoryWithCount extends Category {
 }
 
 /**
- * Opciones de iconos predefinidos para categorías
+ * Opciones de iconos predefinidos para categorías (Ionicons v7)
  */
 export const CATEGORY_ICONS = [
-  'work',
-  'home',
-  'lightbulb',
-  'person',
-  'fitness_center',
-  'flight',
-  'shopping_cart',
-  'school',
-  'favorite',
-  'star',
-  'restaurant',
-  'movie',
-  'music_note',
-  'sports_soccer',
-  'palette',
-  'code',
-  'pets',
-  'beach_access',
-  'local_hospital',
-  'directions_car'
+  'briefcase-outline',
+  'home-outline',
+  'bulb-outline',
+  'person-outline',
+  'fitness-outline',
+  'airplane-outline',
+  'cart-outline',
+  'school-outline',
+  'heart-outline',
+  'star-outline',
+  'restaurant-outline',
+  'film-outline',
+  'musical-note-outline',
+  'football-outline',
+  'color-palette-outline',
+  'code-slash-outline',
+  'paw-outline',
+  'sunny-outline',
+  'medkit-outline',
+  'car-outline'
 ] as const;
 
 /**

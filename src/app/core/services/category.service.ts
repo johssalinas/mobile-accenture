@@ -104,15 +104,19 @@ export class CategoryService {
    * Se ejecuta en segundo plano después de cargar localStorage
    */
   private loadCategories(): void {
+    console.log('🔄 Iniciando suscripción a Firestore...');
     this.getCategories$().subscribe({
       next: (categories) => {
-        // Sincronizar con localStorage
-        this.saveToLocalStorage(categories);
+        console.log('📥 Datos recibidos de Firestore:', categories);
+        // Actualizar estado desde Firestore (source of truth)
         this.categoriesSignal.set(categories);
+        // Sincronizar con localStorage para cache offline
+        this.saveToLocalStorage(categories);
         this.loadingSignal.set(false);
+        console.log('✅ Categorías sincronizadas:', categories.length);
       },
       error: (error) => {
-        console.error('Error al cargar categorías desde Firestore:', error);
+        console.error('❌ Error al cargar categorías desde Firestore:', error);
         // Si falla Firebase, mantenemos lo que hay en localStorage
         this.loadingSignal.set(false);
       }
@@ -123,9 +127,11 @@ export class CategoryService {
    * Observable que escucha cambios en tiempo real de las categorías
    */
   getCategories$(): Observable<Category[]> {
+    console.log('📡 Configurando observable de Firestore...');
     return collectionData(this.categoriesCollection, { idField: 'id' }).pipe(
       map((docs: any[]) => {
-        return docs.map(doc => ({
+        console.log('🔍 Documentos raw de Firestore:', docs);
+        const mapped = docs.map(doc => ({
           id: doc.id,
           name: doc.name,
           color: doc.color,
@@ -134,6 +140,8 @@ export class CategoryService {
           createdAt: doc.createdAt?.toDate() || new Date(),
           updatedAt: doc.updatedAt?.toDate() || new Date()
         }));
+        console.log('🗺️ Documentos mapeados:', mapped);
+        return mapped;
       })
     );
   }
@@ -155,33 +163,12 @@ export class CategoryService {
   }
 
   /**
-   * Crea una nueva categoría (optimistic update)
-   * 1. Guarda en localStorage inmediatamente
-   * 2. Envía a Firestore en segundo plano
+   * Crea una nueva categoría
+   * Guarda directamente en Firestore y el listener actualizará el estado automáticamente
    * @param createCategoryDto Datos para crear la categoría
    * @returns Promise con la categoría creada
    */
   async createCategory(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    // Generar ID temporal para localStorage
-    const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    const newCategory: Category = {
-      id: tempId,
-      name: createCategoryDto.name,
-      color: createCategoryDto.color,
-      backgroundColor: createCategoryDto.backgroundColor,
-      icon: createCategoryDto.icon,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    // 1. Actualizar localStorage inmediatamente (optimistic update)
-    const currentCategories = this.categories();
-    const updatedCategories = [...currentCategories, newCategory];
-    this.categoriesSignal.set(updatedCategories);
-    this.saveToLocalStorage(updatedCategories);
-
-    // 2. Enviar a Firebase en segundo plano
     try {
       const categoryData = {
         name: createCategoryDto.name,
@@ -192,26 +179,26 @@ export class CategoryService {
         updatedAt: serverTimestamp()
       };
 
+      // Guardar en Firebase - el listener en tiempo real actualizará el estado automáticamente
       const docRef = await addDoc(this.categoriesCollection, categoryData);
+      
+      console.log('✅ Categoría creada en Firestore:', docRef.id);
 
-      // 3. Reemplazar el ID temporal con el ID real de Firebase
-      const categoryWithRealId: Category = {
-        ...newCategory,
-        id: docRef.id
+      // Retornar la categoría con el ID real
+      const newCategory: Category = {
+        id: docRef.id,
+        name: createCategoryDto.name,
+        color: createCategoryDto.color,
+        backgroundColor: createCategoryDto.backgroundColor,
+        icon: createCategoryDto.icon,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
-      const categoriesWithRealId = this.categories().map(cat => 
-        cat.id === tempId ? categoryWithRealId : cat
-      );
-      
-      this.categoriesSignal.set(categoriesWithRealId);
-      this.saveToLocalStorage(categoriesWithRealId);
-
-      return categoryWithRealId;
+      return newCategory;
     } catch (error) {
       console.error('Error al crear categoría en Firestore:', error);
-      // Mantener la categoría local aunque falle Firebase
-      return newCategory;
+      throw error;
     }
   }
 

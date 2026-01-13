@@ -1,24 +1,38 @@
 import { Injectable, inject } from '@angular/core';
-import { AlertController } from '@ionic/angular/standalone';
+import { AlertController, LoadingController } from '@ionic/angular/standalone';
 import { CreateCategoryDto, UpdateCategoryDto, CATEGORY_ICONS, CATEGORY_COLOR_PRESETS } from '../models/category.model';
+import { AISuggestionService } from './ai-suggestion.service';
+import { RemoteConfigService } from './remote-config.service';
 
 /**
  * Servicio para mostrar diálogos relacionados con categorías
  * Encapsula la lógica de interacción con el usuario usando AlertController
+ * Integra sugerencias de IA usando Vercel AI SDK (controlado por Remote Config)
  */
 @Injectable({
   providedIn: 'root'
 })
 export class CategoryDialogService {
   private readonly alertController = inject(AlertController);
+  private readonly loadingController = inject(LoadingController);
+  private readonly aiService = inject(AISuggestionService);
+  private readonly remoteConfig = inject(RemoteConfigService);
 
   /**
    * Muestra un diálogo para crear una nueva categoría
+   * Utiliza IA para sugerir automáticamente icono y colores basándose en el nombre
+   * (si está habilitado en Remote Config)
    * @returns Los datos de la categoría o null si se canceló
    */
   async showCreateCategoryDialog(): Promise<CreateCategoryDto | null> {
+    // Verificar si las sugerencias de IA están habilitadas
+    const aiEnabled = await this.remoteConfig.isAISuggestionsEnabled();
+    
     const alert = await this.alertController.create({
       header: 'Nueva Categoría',
+      message: aiEnabled 
+        ? 'La IA sugerirá automáticamente un icono y colores apropiados'
+        : 'Se asignará un icono y colores aleatorios',
       inputs: [
         {
           name: 'name',
@@ -45,22 +59,40 @@ export class CategoryDialogService {
     const result = await alert.onDidDismiss();
 
     if (result.role === 'confirm' && result.data?.values?.name?.trim()) {
-      // Usar un preset aleatorio de colores
-      const randomPreset = CATEGORY_COLOR_PRESETS[
-        Math.floor(Math.random() * CATEGORY_COLOR_PRESETS.length)
-      ];
+      const categoryName = result.data.values.name.trim();
       
-      // Usar un ícono aleatorio
-      const randomIcon = CATEGORY_ICONS[
-        Math.floor(Math.random() * CATEGORY_ICONS.length)
-      ];
+      // Si las sugerencias de IA están deshabilitadas, usar valores aleatorios directamente
+      if (!aiEnabled) {
+        console.log('🚫 Sugerencias de IA deshabilitadas por Remote Config');
+        return this.createCategoryWithRandomStyle(categoryName);
+      }
 
-      return {
-        name: result.data.values.name.trim(),
-        color: randomPreset.color,
-        backgroundColor: randomPreset.backgroundColor,
-        icon: randomIcon
-      };
+      try {
+        // Obtener sugerencia de IA (sin mostrar loading visible)
+        const suggestion = await this.aiService.suggestCategoryStyle(categoryName);
+        
+        // Aplicar la sugerencia directamente sin confirmación
+        console.log('✨ Sugerencia de IA aplicada:', suggestion);
+        console.log('   - Icono:', suggestion.icon);
+        console.log('   - Color:', suggestion.color);
+        console.log('   - Background:', suggestion.backgroundColor);
+        
+        const result = {
+          name: categoryName,
+          color: suggestion.color,
+          backgroundColor: suggestion.backgroundColor,
+          icon: suggestion.icon
+        };
+        
+        console.log('📦 Retornando categoría:', result);
+        return result;
+        
+      } catch (error) {
+        console.error('Error getting AI suggestion:', error);
+        
+        // Fallback a colores e icono aleatorios
+        return this.createCategoryWithRandomStyle(categoryName);
+      }
     }
 
     return null;
@@ -201,6 +233,29 @@ export class CategoryDialogService {
     const result = await alert.onDidDismiss();
 
     return result.role === 'destructive';
+  }
+
+  /**
+   * Crea una categoría con icono y colores aleatorios
+   * Se usa cuando las sugerencias de IA están deshabilitadas
+   * @param categoryName Nombre de la categoría
+   * @returns Datos de la categoría con estilo aleatorio
+   */
+  private createCategoryWithRandomStyle(categoryName: string): CreateCategoryDto {
+    const randomPreset = CATEGORY_COLOR_PRESETS[
+      Math.floor(Math.random() * CATEGORY_COLOR_PRESETS.length)
+    ];
+    
+    const randomIcon = CATEGORY_ICONS[
+      Math.floor(Math.random() * CATEGORY_ICONS.length)
+    ];
+
+    return {
+      name: categoryName,
+      color: randomPreset.color,
+      backgroundColor: randomPreset.backgroundColor,
+      icon: randomIcon
+    };
   }
 
   /**
