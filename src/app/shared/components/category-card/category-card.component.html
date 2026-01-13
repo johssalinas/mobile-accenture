@@ -1,13 +1,11 @@
 <div 
   class="category-card"
+  [style.background-color]="category.backgroundColor"
   (click)="handleClick()"
   (press)="handleLongPress($event)"
   (contextmenu)="handleLongPress($event)"
 >
-  <div 
-    class="category-icon-container"
-    [style.background-color]="category.backgroundColor"
-  >
+  <div class="category-icon-container">
     <ion-icon 
       class="category-icon"
       [name]="category.icon"

@@ -125,9 +125,9 @@
       color: #000000;
     }
     
-    ion-back-button {
+    .ion-back-button {
       --color: var(--ios-blue);
-      font-size: var(--ios-font-size-body);
+      font-size: var(--ios-font-size-subheadline);
       font-weight: var(--ios-font-weight-regular);
     }
   }
