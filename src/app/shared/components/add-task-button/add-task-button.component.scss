@@ -1,6 +1,6 @@
 .add-task-container {
-  padding: 0;
-  margin-top: 10px;
+  padding: 0 16px;
+  margin-top: 16px;
   cursor: pointer;
 }
 
@@ -69,7 +69,7 @@
 /* Responsive design */
 @media (max-width: 375px) {
   .add-task-container {
-    padding: 0;
+    padding: 0 12px;
   }
   
   .add-task-item {
