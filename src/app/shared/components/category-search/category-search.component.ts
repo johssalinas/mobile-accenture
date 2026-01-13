@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { search } from 'ionicons/icons';
+import { search, closeCircle } from 'ionicons/icons';
 
 /**
  * Componente presentacional para la búsqueda de categorías
@@ -23,7 +23,7 @@ export class CategorySearchComponent {
   protected readonly searchTerm = signal<string>('');
 
   constructor() {
-    addIcons({ search });
+    addIcons({ search, closeCircle });
   }
 
   protected onSearchInput(event: Event): void {
@@ -31,5 +31,10 @@ export class CategorySearchComponent {
     const value = input.value;
     this.searchTerm.set(value);
     this.searchChange.emit(value);
+  }
+
+  protected onClearSearch(): void {
+    this.searchTerm.set('');
+    this.searchChange.emit('');
   }
 }
