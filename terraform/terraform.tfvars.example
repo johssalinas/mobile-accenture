@@ -1,0 +1,15 @@
+# Copia este archivo como terraform.tfvars y configura tus valores
+# IMPORTANTE: Agrega terraform.tfvars a .gitignore
+
+aws_region   = "us-east-1"
+project_name = "mobile-accenture"
+environment  = "dev"
+
+# OpenAI API Key (REQUERIDO)
+openai_api_key = "sk-..."
+
+# Configuración opcional
+default_ai_model   = "gpt-3.5-turbo"
+lambda_memory_size = 512
+lambda_timeout     = 30
+allowed_origins    = ["*"]
