@@ -144,12 +144,14 @@ export async function handler(
   }
 
   try {
-    // Parsear body
+    // Parsear body - HTTP API v2 puede enviar body como string o ya parseado
     if (!event.body) {
       throw new Error('Missing request body');
     }
 
-    const request: AISuggestionRequest = JSON.parse(event.body);
+    const request: AISuggestionRequest = typeof event.body === 'string' 
+      ? JSON.parse(event.body)
+      : event.body as any;
 
     // Validar request
     if (!request.categoryName || request.categoryName.trim().length === 0) {
