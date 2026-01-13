@@ -144,14 +144,25 @@ export async function handler(
   }
 
   try {
-    // Parsear body - HTTP API v2 puede enviar body como string o ya parseado
+    // Debug: log el body tal como llega
+    console.log('Raw body type:', typeof event.body);
+    console.log('Raw body:', event.body);
+    console.log('Is base64:', event.isBase64Encoded);
+    
+    // Parsear body
     if (!event.body) {
       throw new Error('Missing request body');
     }
 
-    const request: AISuggestionRequest = typeof event.body === 'string' 
-      ? JSON.parse(event.body)
-      : event.body as any;
+    // HTTP API v2: body siempre viene como string
+    let bodyString = event.body;
+    
+    // Si viene en base64, decodificar
+    if (event.isBase64Encoded) {
+      bodyString = Buffer.from(event.body, 'base64').toString('utf-8');
+    }
+
+    const request: AISuggestionRequest = JSON.parse(bodyString);
 
     // Validar request
     if (!request.categoryName || request.categoryName.trim().length === 0) {
