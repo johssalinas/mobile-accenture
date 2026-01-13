@@ -33,8 +33,8 @@ variable "default_ai_model" {
   default     = "gpt-3.5-turbo"
 
   validation {
-    condition     = contains(["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o"], var.default_ai_model)
-    error_message = "default_ai_model debe ser un modelo válido de OpenAI"
+    condition = can(regex("^(openai/)?(gpt-3.5-turbo|gpt-4|gpt-4-turbo|gpt-4o|gpt-4o-mini)$", var.default_ai_model))
+    error_message = "default_ai_model debe ser un modelo válido de OpenAI (con o sin prefijo 'openai/')"
   }
 }
 
