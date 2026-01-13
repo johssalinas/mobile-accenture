@@ -1,38 +1,67 @@
 .category-card {
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  justify-content: space-between;
+  padding: 14px;
+  transition: opacity 0.2s ease;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  height: 120px;
+  overflow: hidden;
+  border-radius: 8px;
+  position: relative;
+
+  // Efecto hover para desktop
+  &:hover {
+    opacity: 0.9;
+  }
+
+  // Efecto active (cuando se presiona)
+  &:active {
+    transform: scale(0.95);
+  }
 
   .category-icon-container {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    margin-bottom: 24px;
-    flex-shrink: 0;
+    align-items: flex-start;
+    justify-content: flex-start;
 
     .category-icon {
-      font-size: 30px;
+      font-size: 40px;
+      filter: brightness(0.85);
     }
   }
 
   .category-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    
     .category-name {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--ion-text-color);
-      line-height: 1.2;
-      margin: 0 0 4px 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #000;
+      line-height: 1.3;
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      word-break: break-word;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
 
     .category-count {
-      font-size: 14px;
-      color: var(--ion-color-medium);
+      font-size: 11px;
+      color: rgba(0, 0, 0, 0.7);
       margin: 0;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 }

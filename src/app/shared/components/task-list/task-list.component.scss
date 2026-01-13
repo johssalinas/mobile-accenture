@@ -1,13 +1,15 @@
 .task-list-container {
-  padding: 0;
+  padding: 0 16px;
   margin-top: 16px;
 }
 
 .task-wrapper {
-  transition: background-color 0.15s ease;
+  margin-bottom: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   
   &.task-selected {
-    background-color: #e5e5ea;
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -40,6 +42,7 @@
 @media (max-width: 375px) {
   .task-list-container {
     padding: 0 12px;
+    margin-top: 16px;
   }
   
   .empty-title {

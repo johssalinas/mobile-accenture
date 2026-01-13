@@ -8,5 +8,12 @@
       [value]="searchTerm()"
       (input)="onSearchInput($event)"
     />
+    @if (searchTerm()) {
+      <ion-icon 
+        name="close-circle" 
+        class="clear-icon"
+        (click)="onClearSearch()"
+      ></ion-icon>
+    }
   </div>
 </div>

@@ -9,6 +9,16 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+/**
+ * Platform-Specific Themes
+ * -----------------------------------------------------
+ * Importar estilos específicos para iOS y Android
+ * Usando @use as * para mantener compatibilidad sin namespace
+ * IMPORTANTE: @use debe ir antes de cualquier @import
+ */
+@use "./theme/theme-ios.scss" as *;
+@use "./theme/theme-material.scss" as *;
+
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 
@@ -24,14 +34,6 @@
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
-
-/**
- * Platform-Specific Themes
- * -----------------------------------------------------
- * Importar estilos específicos para iOS y Android
- */
-@import "./theme/theme-ios.scss";
-@import "./theme/theme-material.scss";
 
 /**
  * Custom Global Styles
@@ -215,4 +217,23 @@ ion-action-sheet {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+/**
+ * Estilos personalizados para alerts de categorías
+ */
+.category-delete-alert {
+  .alert-message {
+    white-space: pre-line;
+    text-align: left;
+  }
+}
+
+.alert-button-cancel {
+  color: var(--ion-color-primary) !important;
+}
+
+.alert-button-destructive {
+  color: var(--ion-color-danger) !important;
+  font-weight: 600;
 }

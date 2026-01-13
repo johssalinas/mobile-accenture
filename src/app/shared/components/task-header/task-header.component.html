@@ -4,7 +4,7 @@
       @if (config().showBackButton) {
         <ion-button 
           fill="clear" 
-          class="back-button"
+          class="back-button ion-back-button"
           [routerLink]="['/categories']"
           routerDirection="back"
         >
@@ -16,10 +16,6 @@
     
     <div class="header-title">
       {{ config().title }}
-    </div>
-    
-    <div class="header-right">
-      <!-- Espacio vacío para mantener el título centrado -->
     </div>
   </div>
 </div>

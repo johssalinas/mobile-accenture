@@ -6,7 +6,7 @@ import { IonContent } from '@ionic/angular/standalone';
 import { CategoryWithCount, CategoryHeaderConfig } from '../core/models/category.model';
 import { CategoryService } from '../core/services/category.service';
 import { CategoryDialogService } from '../core/services/category-dialog.service';
-import { FirebaseTaskService } from '../core/services/firebase-task.service';
+import { TaskService } from '../core/services/task.service';
 
 // Componentes granulares
 import { CategoryHeaderComponent } from '../shared/components/category-header/category-header.component';
@@ -38,7 +38,7 @@ export class CategoriesPage {
   // Inyección usando la función inject (Angular 20 best practice)
   private readonly categoryService = inject(CategoryService);
   private readonly categoryDialogService = inject(CategoryDialogService);
-  private readonly taskService = inject(FirebaseTaskService);
+  private readonly taskService = inject(TaskService);
   private readonly router = inject(Router);
 
   /** Signal para la categoría seleccionada */
@@ -154,7 +154,12 @@ export class CategoriesPage {
   protected async onEditCategory(category: CategoryWithCount): Promise<void> {
     this.isActionSheetOpen.set(false);
     
-    const updateData = await this.categoryDialogService.showEditCategoryDialog(category.name);
+    const updateData = await this.categoryDialogService.showEditCategoryDialog(
+      category.name,
+      category.icon,
+      category.color,
+      category.backgroundColor
+    );
     
     if (updateData) {
       await this.categoryService.updateCategory(category.id, updateData);
@@ -169,7 +174,10 @@ export class CategoriesPage {
   protected async onDeleteCategory(category: CategoryWithCount): Promise<void> {
     this.isActionSheetOpen.set(false);
     
-    const confirmed = await this.categoryDialogService.showDeleteCategoryConfirmation(category.name);
+    const confirmed = await this.categoryDialogService.showDeleteCategoryConfirmation(
+      category.name,
+      category.taskCount
+    );
     
     if (confirmed) {
       const success = await this.categoryService.deleteCategory(category.id);

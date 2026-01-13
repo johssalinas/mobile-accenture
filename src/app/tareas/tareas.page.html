@@ -1,7 +1,7 @@
 <ion-content [fullscreen]="true">
   <!-- Header granular dentro del content -->
   <app-task-header 
-    [config]="headerConfig"
+    [config]="headerConfig()"
     (backClick)="onHeaderBackClick()"
   />
   
@@ -9,6 +9,7 @@
   <app-task-list
     [tasks]="tasks()"
     [selectedTask]="selectedTask()"
+    [loading]="isLoading()"
     (taskToggle)="onTaskToggle($event)"
     (taskOptions)="onTaskOptions($event)"
   />

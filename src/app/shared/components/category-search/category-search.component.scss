@@ -28,5 +28,21 @@
         color: var(--ion-color-medium);
       }
     }
+
+    .clear-icon {
+      color: var(--ion-color-medium);
+      font-size: 20px;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+
+      &:hover {
+        opacity: 0.7;
+      }
+
+      &:active {
+        opacity: 0.5;
+      }
+    }
   }
 }

@@ -8,7 +8,10 @@ import {
   updateDoc, 
   deleteDoc,
   serverTimestamp,
-  Timestamp 
+  Timestamp,
+  query,
+  where,
+  getDocs
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -30,6 +33,7 @@ import {
 export class CategoryService {
   private firestore = inject(Firestore);
   private categoriesCollection = collection(this.firestore, 'categories');
+  private tasksCollection = collection(this.firestore, 'tasks');
   private readonly STORAGE_KEY = 'categories';
   
   /** Signal privado con estado writable */
@@ -273,7 +277,8 @@ export class CategoryService {
    * Elimina una categoría (optimistic update)
    * 1. Elimina de localStorage inmediatamente
    * 2. Envía a Firestore en segundo plano
-   * 3. Si falla, revierte al estado anterior
+   * 3. Elimina todas las tareas relacionadas con la categoría
+   * 4. Si falla, revierte al estado anterior
    * @param id ID de la categoría a eliminar
    * @returns Promise con true si se eliminó correctamente, false si no existe
    */
@@ -293,9 +298,16 @@ export class CategoryService {
     this.categoriesSignal.set(updatedCategories);
     this.saveToLocalStorage(updatedCategories);
 
-    // 2. Enviar a Firebase en segundo plano (solo si no es ID temporal)
+    // 2. Eliminar tareas relacionadas del localStorage
+    this.deleteTasksFromLocalStorage(id);
+
+    // 3. Enviar a Firebase en segundo plano (solo si no es ID temporal)
     if (!id.startsWith('temp_')) {
       try {
+        // Primero eliminar las tareas relacionadas de Firestore
+        await this.deleteRelatedTasksFromFirestore(id);
+        
+        // Luego eliminar la categoría de Firestore
         const categoryRef = doc(this.firestore, 'categories', id);
         await deleteDoc(categoryRef);
       } catch (error) {
@@ -310,6 +322,51 @@ export class CategoryService {
     }
 
     return true;
+  }
+
+  /**
+   * Elimina tareas relacionadas del localStorage
+   * @param categoryId ID de la categoría
+   */
+  private deleteTasksFromLocalStorage(categoryId: string): void {
+    try {
+      const stored = localStorage.getItem('tasks');
+      if (stored) {
+        const tasks = JSON.parse(stored);
+        const filteredTasks = tasks.filter((task: any) => task.categoryId !== categoryId);
+        localStorage.setItem('tasks', JSON.stringify(filteredTasks));
+      }
+    } catch (error) {
+      console.error('Error al eliminar tareas del localStorage:', error);
+    }
+  }
+
+  /**
+   * Elimina tareas relacionadas de Firestore
+   * @param categoryId ID de la categoría
+   */
+  private async deleteRelatedTasksFromFirestore(categoryId: string): Promise<void> {
+    try {
+      // Consultar todas las tareas con esta categoría
+      const tasksQuery = query(
+        this.tasksCollection,
+        where('categoryId', '==', categoryId)
+      );
+      
+      const querySnapshot = await getDocs(tasksQuery);
+      
+      // Eliminar cada tarea encontrada
+      const deletePromises = querySnapshot.docs.map(taskDoc => 
+        deleteDoc(doc(this.firestore, 'tasks', taskDoc.id))
+      );
+      
+      await Promise.all(deletePromises);
+      
+      console.log(`Se eliminaron ${querySnapshot.size} tareas de la categoría ${categoryId}`);
+    } catch (error) {
+      console.error('Error al eliminar tareas relacionadas de Firestore:', error);
+      throw error;
+    }
   }
 
   /**

@@ -2,6 +2,7 @@ import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Task } from '../../../core/models/task.model';
 import { TaskItemComponent } from '../task-item/task-item.component';
+import { TaskSkeletonComponent } from '../task-skeleton/task-skeleton.component';
 
 /**
  * Componente presentacional para mostrar una lista de tareas
@@ -14,7 +15,8 @@ import { TaskItemComponent } from '../task-item/task-item.component';
   standalone: true,
   imports: [
     CommonModule,
-    TaskItemComponent
+    TaskItemComponent,
+    TaskSkeletonComponent
   ]
 })
 export class TaskListComponent {
@@ -23,6 +25,9 @@ export class TaskListComponent {
   
   /** Tarea actualmente seleccionada */
   readonly selectedTask = input<Task | null>(null);
+  
+  /** Estado de carga */
+  readonly loading = input<boolean>(false);
   
   /** Evento cuando se hace toggle en una tarea */
   readonly taskToggle = output<Task>();
