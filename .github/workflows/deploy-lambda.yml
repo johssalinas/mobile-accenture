@@ -199,14 +199,18 @@ jobs:
       
       - name: Test deployed endpoint
         run: |
-          ENDPOINT=$(cd terraform && terraform output -raw suggest_endpoint)
-          echo "Testing endpoint: $ENDPOINT"
+          SUGGEST_ENDPOINT=$(cd terraform && terraform output -raw suggest_endpoint)
+          HEALTH_ENDPOINT=$(cd terraform && terraform output -raw health_endpoint)
+          
+          echo "Testing health endpoint: $HEALTH_ENDPOINT"
           
           # Health check
-          curl -f "$ENDPOINT/../health" || exit 1
+          curl -f "$HEALTH_ENDPOINT" || exit 1
+          
+          echo "Testing suggestion endpoint: $SUGGEST_ENDPOINT"
           
           # Test suggestion
-          RESPONSE=$(curl -s -X POST "$ENDPOINT" \
+          RESPONSE=$(curl -s -X POST "$SUGGEST_ENDPOINT" \
             -H "Content-Type: application/json" \
             -d '{"categoryName": "Test from CI/CD"}')
           
